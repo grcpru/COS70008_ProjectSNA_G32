@@ -1,0 +1,2 @@
+(self.webpackChunkdtale=self.webpackChunkdtale||[]).push([[8048],{61877:e=>{e.exports=function(e){return{name:"ERB",subLanguage:"xml",contains:[e.COMMENT("<%#","%>"),{begin:"<%[%=-]?",end:"[%-]?%>",subLanguage:"ruby",excludeBegin:!0,excludeEnd:!0}]}}}}]);
+//# sourceMappingURL=8048.dtale_bundle.js.map

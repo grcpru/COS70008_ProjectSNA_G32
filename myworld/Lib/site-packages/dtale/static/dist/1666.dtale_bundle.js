@@ -1,0 +1,2 @@
+(self.webpackChunkdtale=self.webpackChunkdtale||[]).push([[1666],{1824:e=>{e.exports=function(e){return{name:"Plain text",aliases:["text","txt"],disableAutodetect:!0}}}}]);
+//# sourceMappingURL=1666.dtale_bundle.js.map

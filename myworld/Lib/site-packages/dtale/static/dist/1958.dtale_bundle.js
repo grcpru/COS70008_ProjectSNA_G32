@@ -1,0 +1,2 @@
+(self.webpackChunkdtale=self.webpackChunkdtale||[]).push([[1958],{52349:e=>{e.exports=function(e){return{name:"Julia REPL",contains:[{className:"meta",begin:/^julia>/,relevance:10,starts:{end:/^(?![ ]{6})/,subLanguage:"julia"},aliases:["jldoctest"]}]}}}}]);
+//# sourceMappingURL=1958.dtale_bundle.js.map

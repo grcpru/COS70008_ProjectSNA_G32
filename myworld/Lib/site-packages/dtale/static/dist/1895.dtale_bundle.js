@@ -1,0 +1,2 @@
+(self.webpackChunkdtale=self.webpackChunkdtale||[]).push([[1895],{49487:e=>{e.exports=function(e){return{name:"Tagger Script",contains:[{className:"comment",begin:/\$noop\(/,end:/\)/,contains:[{begin:/\(/,end:/\)/,contains:["self",{begin:/\\./}]}],relevance:10},{className:"keyword",begin:/\$(?!noop)[a-zA-Z][_a-zA-Z0-9]*/,end:/\(/,excludeEnd:!0},{className:"variable",begin:/%[_a-zA-Z0-9:]*/,end:"%"},{className:"symbol",begin:/\\./}]}}}}]);
+//# sourceMappingURL=1895.dtale_bundle.js.map

@@ -1,0 +1,2 @@
+(self.webpackChunkdtale=self.webpackChunkdtale||[]).push([[6735],{68735:a=>{a.exports=function(a){return{aliases:["pycon"],contains:[{className:"meta",starts:{end:/ |$/,starts:{end:"$",subLanguage:"python"}},variants:[{begin:/^>>>(?=[ ]|$)/},{begin:/^\.\.\.(?=[ ]|$)/}]}]}}}}]);
+//# sourceMappingURL=6735.dtale_bundle.js.map

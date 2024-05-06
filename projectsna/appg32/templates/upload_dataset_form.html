@@ -1,0 +1,23 @@
+<!-- templates/upload_dataset_form.html -->
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Dataset</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/upload_form_styles.css' %}">
+</head>
+<body>
+    <div class="upload-form-container">
+        <h1>Upload Dataset</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="dataset" class="upload-form-label">Choose a dataset file:</label><br>
+            <input type="file" id="dataset" name="dataset" accept=".csv" class="upload-form-input"><br><br>
+            <input type="submit" value="Upload" class="upload-form-submit">
+        </form>
+    </div>
+</body>
+</html>

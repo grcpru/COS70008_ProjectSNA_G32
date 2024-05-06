@@ -1,0 +1,30 @@
+<!-- templates/landing_page.html -->
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Network Analysis Application</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Social Network Analysis Application</h1>
+    </header>
+    <main>
+        <div class="container">
+            <p>This application allows you to perform in-depth analysis of social networks using advanced statistical models.</p>
+            <p>Get started by uploading your network data or exploring pre-loaded datasets.</p>
+            <div class="buttons">
+                <a href="{% url 'upload_dataset' %}" class="btn btn-primary">Upload Data</a>
+                <a href="{% url 'explore_datasets' %}" class="btn btn-secondary">Explore Datasets</a>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Project SNA Group 32</p>
+    </footer>
+</body>
+</html>
