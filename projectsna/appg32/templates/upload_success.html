@@ -8,6 +8,14 @@
 <body>
     <h1>Upload Successful</h1>
     <p>Your file has been successfully uploaded.</p>
-    <!-- Add any additional content or links here -->
+    <p>What would you like to do next?</p>
+    <button onclick="exploreUploadedDataset()">Explore Uploaded Dataset</button>
+
+    <script>
+        function exploreUploadedDataset() {
+            // Redirect to the Explore Datasets page
+            window.location.href = "{% url 'explore_datasets' %}";
+        }
+    </script>
 </body>
 </html>

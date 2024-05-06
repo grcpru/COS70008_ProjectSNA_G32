@@ -12,6 +12,7 @@ urlpatterns = [
     path('success/', views.upload_success, name='upload_success'),
     path('dataset-success/', views.upload_success, name='upload_success'),
     path('explore_datasets/', views.explore_datasets, name='explore_datasets'),
+    path('explore_file/<str:file>/', views.explore_file, name='explore_file'),
 ]
 
 # Serve media files during development

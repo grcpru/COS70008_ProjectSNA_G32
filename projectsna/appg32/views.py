@@ -32,19 +32,36 @@ def upload_dataset(request):
         form = DatasetUploadForm()
         return render(request, 'upload_dataset_form.html', {'form': form})
 
+# """ def explore_datasets(request):
+#     file_path = r'C:\Users\grcp_\Documents\GitHub\COS70008_ProjectSNA_G32\projectsna\media\trade_data_rice.csv'
+#     if os.path.exists(file_path):
+#         # Read the uploaded file as a pandas DataFrame
+#         df = pd.read_csv(file_path)
+        
+#         # Start a D-Tale web server and get the URL
+#         dtale_instance = dtale.show(df)
+#         dtale_url = dtale_instance.main_url()
+        
+#         return render(request, 'explore_datasets.html', {'dtale_url': dtale_url})
+#     else:
+#         return render(request, 'no_dataset_uploaded.html') """
+
 def explore_datasets(request):
-    file_path = r'C:\Users\grcp_\Documents\GitHub\COS70008_ProjectSNA_G32\projectsna\media\trade_data_rice.csv'
-    if os.path.exists(file_path):
-        # Read the uploaded file as a pandas DataFrame
-        df = pd.read_csv(file_path)
-        
-        # Start a D-Tale web server and get the URL
-        dtale_instance = dtale.show(df)
-        dtale_url = dtale_instance.main_url()
-        
-        return render(request, 'explore_datasets.html', {'dtale_url': dtale_url})
-    else:
-        return render(request, 'no_dataset_uploaded.html')
+    # Path to the media folder
+    media_folder = 'media'
+    # List all files in the media folder
+    files = os.listdir(media_folder)
+    return render(request, 'explore_datasets.html', {'files': files})
+
+def explore_file(request, file):
+    # Path to the selected file in the media folder
+    file_path = os.path.join('media', file)
+    # Read the selected file as a pandas DataFrame
+    df = pd.read_csv(file_path)
+    # Start a D-Tale web server and get the URL
+    dtale_instance = dtale.show(df)
+    dtale_url = dtale_instance.main_url()
+    return render(request, 'explore_file.html', {'dtale_url': dtale_url})
 
 def upload_success(request):
     return render(request, 'upload_success.html')

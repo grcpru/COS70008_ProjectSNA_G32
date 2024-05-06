@@ -1,6 +1,6 @@
 {% load static %}  <!-- Add this line to load the static tag -->
 
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,5 +11,21 @@
     <h1>Explore Datasets</h1>
     <iframe src="{{ dtale_url }}" width="100%" height="800" frameborder="0"></iframe>
 </body>
-</html>
+</html> {% endcomment %}
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Datasets</title>
+</head>
+<body>
+    <h1>Explore Datasets</h1>
+    <ul>
+        {% for file in files %}
+            <li><a href="{% url 'explore_file' file %}">{{ file }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
