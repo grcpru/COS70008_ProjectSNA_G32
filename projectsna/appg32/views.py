@@ -10,8 +10,7 @@ import plotly.graph_objs as go
 import plotly.offline as pyo
 import random  
 import copy
-from .subdirectory.ergm import compute_weight, permute_graph, mcmc, sum_weights, fit_ergm
-from .subdirectory import ergm
+
 
 
 def landing_page(request):
