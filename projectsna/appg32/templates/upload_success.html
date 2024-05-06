@@ -10,11 +10,17 @@
     <p>Your file has been successfully uploaded.</p>
     <p>What would you like to do next?</p>
     <button onclick="exploreUploadedDataset()">Explore Uploaded Dataset</button>
+    <button onclick="analyzeData()">Analysis Data</button>
 
     <script>
         function exploreUploadedDataset() {
             // Redirect to the Explore Datasets page
             window.location.href = "{% url 'explore_datasets' %}";
+        }
+
+        function analyzeData() {
+            // Redirect to the Analyze Data page
+            window.location.href = "{% url 'analyze_data' %}";
         }
     </script>
 </body>
