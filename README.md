@@ -1,7 +1,9 @@
 **Social Network Analyzer (SNA) Desktop Application**
+
 The "Social Network Analyzer (SNA) Desktop Application" is a sophisticated yet user-friendly tool designed for analyzing social networks. The project, titled "Design and Implementation of a Cross-platform Desktop Application for Social Network Analysis using Statistical Models," aims to deliver a powerful desktop application to facilitate advanced social network analysis across diverse contexts.
 
 **Project Overview**
+
 The SNA Desktop Application leverages statistical models such as Exponential Random Graph Models (ERGMs) to enable users to analyze social network data comprehensively. Key features of the application include:
 
 - Data Collection and Upload: Users can collect and upload network data seamlessly through the application's intuitive interface.
@@ -26,3 +28,5 @@ The backend of the application is built using the Django framework, providing a 
 
 **Note**
 Please note that the code for the Social Network Analyzer (SNA) Desktop Application is still under development and not yet finalized.
+
+Project Group32
