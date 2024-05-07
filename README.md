@@ -14,12 +14,12 @@ The SNA Desktop Application leverages statistical models such as Exponential Ran
 - projectsna/: Django project directory.
   - settings.py: Django project settings.
   - urls.py: Main URL configuration.
-  - wsgi.py: WSGI configuration for deployment.
 - appg32/: Django app directory.
   - views.py: View functions for handling requests.
-  - urls.py: URL configuration for the app.
+  - forms.py: Forms for data input and user interaction.
   - templates/: HTML templates.
   - static/: Static files (CSS, JavaScript, etc.).
+- media/: store datasets
   
 **Backend Framework**
 The backend of the application is built using the Django framework, providing a robust and scalable foundation for managing data and serving the application's functionality.
