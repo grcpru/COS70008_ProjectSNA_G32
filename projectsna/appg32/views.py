@@ -248,3 +248,10 @@ def analyze_data(request):
 def network_graph(request):
     # Render the network graph template
     return render(request, 'network_graph.html')
+
+
+def data_prep_model(data_file_path):
+    data = pd.read_csv(data_file_path, index_col=0)
+    edges = data[['exporter_name','importer_name','value']].copy().reset_index(drop=True)
+    G_df = nx.from_pandas_edgelist(edges, 'exporter_name', 'importer_name', edge_attr='value')
+    return G_df
