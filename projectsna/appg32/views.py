@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 import os
 import pandas as pd
+import numpy as np
 import dtale
 import dtale.views
 from django.shortcuts import render, HttpResponseRedirect
@@ -16,7 +17,13 @@ import plotly.offline as pyo
 import random  
 import copy
 import json
+from io import BytesIO
+import base64
+import matplotlib.pyplot as plt
 from django.template.loader import get_template
+
+# Switch to 'Agg' backend for matplotlib
+plt.switch_backend('Agg')
 
 def landing_page(request):
     return render(request, 'landing_page.html')
@@ -310,3 +317,66 @@ def network_view(request):
     node_list = [{"id": node["id"], "label": node["label"]} for node in nodes]
 
     return render(request, "visualization_page.html", {"graph_data": json.dumps(graph_data), "communities": communities, "nodes": node_list})
+
+def calculate_network_statistics(dataframe):
+    G = nx.from_pandas_edgelist(dataframe, source='exporter_name', target='importer_name', edge_attr=True, create_using=nx.DiGraph())
+
+    num_nodes = G.number_of_nodes()
+    num_edges = G.number_of_edges()
+    avg_degree = sum(dict(G.degree()).values()) / float(num_nodes)
+    network_density = nx.density(G)
+    clustering_coefficient = nx.average_clustering(G.to_undirected())
+    
+    in_degrees = np.array(list(dict(G.in_degree()).values()))
+    out_degrees = np.array(list(dict(G.out_degree()).values()))
+    betweenness_centrality = np.array(list(nx.betweenness_centrality(G).values()))
+
+    degrees = [d for n, d in G.degree()]
+    degree_count = pd.Series(degrees).value_counts().sort_index()
+
+    # Create a plot as a string buffer
+    buffer = BytesIO()
+    plt.figure(figsize=(10, 5))
+    plt.bar(degree_count.index, degree_count.values, width=0.80, color='b')
+    plt.title("Degree Distribution")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+    plt.savefig(buffer, format='png')
+    plt.close()
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    graph = base64.b64encode(image_png).decode('utf-8')
+
+    single_stats_df = pd.DataFrame({
+        'Statistic': ['Number of Nodes', 'Number of Edges', 'Average Degree', 'Network Density', 'Average Clustering Coefficient'],
+        'Value': [num_nodes, num_edges, avg_degree, network_density, clustering_coefficient]
+    })
+
+    multi_stats_df = pd.DataFrame({
+        'Statistic': ['In-Degree', 'Out-Degree', 'Betweenness Centrality'],
+        'Total': [np.sum(in_degrees), np.sum(out_degrees), np.nan],
+        'Average': [np.mean(in_degrees), np.mean(out_degrees), np.mean(betweenness_centrality)],
+        'Max': [np.max(in_degrees), np.max(out_degrees), np.max(betweenness_centrality)],
+        'Standard Deviation': [np.std(in_degrees), np.std(out_degrees), np.std(betweenness_centrality)]
+    })
+
+    return single_stats_df, multi_stats_df, graph
+
+def network_statistics(request):
+    # Load your data
+    file_path = os.path.join(settings.MEDIA_ROOT, 'trade_data_rice.csv')
+    df = pd.read_csv(file_path)
+
+    # Calculate statistics and generate graph
+    single_stats, multi_stats, graph = calculate_network_statistics(df)
+
+    # Convert DataFrames to HTML for rendering in the template
+    single_stats_html = single_stats.to_html(classes='table table-striped', index=False)
+    multi_stats_html = multi_stats.to_html(classes='table table-striped', index=False)
+
+    context = {
+        'single_stats': single_stats_html,
+        'multi_stats': multi_stats_html,
+        'graph': graph  # graph is a base64-encoded PNG image
+    }
+    return render(request, 'network_statistics.html', context)

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Network Statistics</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <h1>Network Statistics</h1>
+    <h2>General Network Statistics</h2>
+    <div>{{ single_stats|safe }}</div>  <!-- Use the safe filter here -->
+    <h2>Node-Level Descriptive Statistics</h2>
+    <div>{{ multi_stats|safe }}</div>  <!-- And here -->
+    <h2>Degree Distribution</h2>
+    <img src="data:image/png;base64,{{ graph }}">
+</body>
+</html>

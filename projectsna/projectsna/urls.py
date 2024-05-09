@@ -16,6 +16,7 @@ urlpatterns = [
     path('analyze/', views.analyze_data, name='analyze_data'),
     path('network-graph/', views.network_graph, name='network_graph'),
     path('visualize/', views.network_view, name='network_visualize'),
+    path('network-statistics/', views.network_statistics, name='network_statistics'),
 ]
 
 # Serve media files during development
