@@ -1,0 +1,12 @@
+{% load static %}  <!-- Add this line to load the static tag -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Analysis</title>
+</head>
+<body>
+    <h1>Network Analysis</h1>
+    <p>Here is the network visualization:</p>
+    <iframe src="{% url 'network_visualization' %}"></iframe>
+</body>
+</html>

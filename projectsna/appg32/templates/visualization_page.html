@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Graph</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+    {% load static %}
+    <script src="{% static 'js/network_visualization.js' %}"></script>
+</head>
+<body>
+    <h1>Network Graph</h1>
+    <label for="community-select">Select Community:</label>
+    <select id="community-select">
+        <option value="all">All</option>
+        {% for community in communities %}
+        <option value="{{ community }}">{{ community }}</option>
+        {% endfor %}
+    </select>
+    <label for="node-select">Select Node:</label>
+    <select id="node-select">
+        <option value="">Select a node</option>
+        {% for node in nodes %}
+        <option value="{{ node.id }}">{{ node.label }}</option>
+        {% endfor %}
+    </select>
+    <div id="network-graph"></div>
+
+    <script>
+        var graphData = {{ graph_data|safe }};
+        renderNetworkGraph(graphData);
+    </script>
+</body>
+</html>
+
+

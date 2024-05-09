@@ -1,0 +1,711 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+                <link href="lib/tom-select/tom-select.css" rel="stylesheet">
+                <script src="lib/tom-select/tom-select.complete.min.js"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: white;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 750px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="Argentina">Argentina</option>
+                                
+                                    <option value="Brazil">Brazil</option>
+                                
+                                    <option value="Chile">Chile</option>
+                                
+                                    <option value="Uruguay">Uruguay</option>
+                                
+                                    <option value="Australia">Australia</option>
+                                
+                                    <option value="Bahrain">Bahrain</option>
+                                
+                                    <option value="South Africa">South Africa</option>
+                                
+                                    <option value="Bangladesh">Bangladesh</option>
+                                
+                                    <option value="Ireland">Ireland</option>
+                                
+                                    <option value="Pakistan">Pakistan</option>
+                                
+                                    <option value="Belgium">Belgium</option>
+                                
+                                    <option value="Germany">Germany</option>
+                                
+                                    <option value="Hungary">Hungary</option>
+                                
+                                    <option value="Iceland">Iceland</option>
+                                
+                                    <option value="Italy">Italy</option>
+                                
+                                    <option value="Netherlands">Netherlands</option>
+                                
+                                    <option value="Angola">Angola</option>
+                                
+                                    <option value="Costa Rica">Costa Rica</option>
+                                
+                                    <option value="El Salvador">El Salvador</option>
+                                
+                                    <option value="Guatemala">Guatemala</option>
+                                
+                                    <option value="Honduras">Honduras</option>
+                                
+                                    <option value="Liberia">Liberia</option>
+                                
+                                    <option value="Mexico">Mexico</option>
+                                
+                                    <option value="Paraguay">Paraguay</option>
+                                
+                                    <option value="Switzerland">Switzerland</option>
+                                
+                                    <option value="Venezuela">Venezuela</option>
+                                
+                                    <option value="Bulgaria">Bulgaria</option>
+                                
+                                    <option value="Greece">Greece</option>
+                                
+                                    <option value="Romania">Romania</option>
+                                
+                                    <option value="Türkiye">Türkiye</option>
+                                
+                                    <option value="Ukraine">Ukraine</option>
+                                
+                                    <option value="Myanmar">Myanmar</option>
+                                
+                                    <option value="China">China</option>
+                                
+                                    <option value="Cambodia">Cambodia</option>
+                                
+                                    <option value="Poland">Poland</option>
+                                
+                                    <option value="Viet Nam">Viet Nam</option>
+                                
+                                    <option value="Canada">Canada</option>
+                                
+                                    <option value="USA">USA</option>
+                                
+                                    <option value="Sri Lanka">Sri Lanka</option>
+                                
+                                    <option value="Bosnia Herzegovina">Bosnia Herzegovina</option>
+                                
+                                    <option value="Burundi">Burundi</option>
+                                
+                                    <option value="Indonesia">Indonesia</option>
+                                
+                                    <option value="Madagascar">Madagascar</option>
+                                
+                                    <option value="Montenegro">Montenegro</option>
+                                
+                                    <option value="Mozambique">Mozambique</option>
+                                
+                                    <option value="Nepal">Nepal</option>
+                                
+                                    <option value="New Zealand">New Zealand</option>
+                                
+                                    <option value="Nigeria">Nigeria</option>
+                                
+                                    <option value="Philippines">Philippines</option>
+                                
+                                    <option value="Uganda">Uganda</option>
+                                
+                                    <option value="Burkina Faso">Burkina Faso</option>
+                                
+                                    <option value="Panama">Panama</option>
+                                
+                                    <option value="Czechia">Czechia</option>
+                                
+                                    <option value="Benin">Benin</option>
+                                
+                                    <option value="United Arab Emirates">United Arab Emirates</option>
+                                
+                                    <option value="Denmark">Denmark</option>
+                                
+                                    <option value="Greenland">Greenland</option>
+                                
+                                    <option value="Dominican Rep.">Dominican Rep.</option>
+                                
+                                    <option value="Ecuador">Ecuador</option>
+                                
+                                    <option value="Equatorial Guinea">Equatorial Guinea</option>
+                                
+                                    <option value="Zambia">Zambia</option>
+                                
+                                    <option value="Fiji">Fiji</option>
+                                
+                                    <option value="Nauru">Nauru</option>
+                                
+                                    <option value="Tuvalu">Tuvalu</option>
+                                
+                                    <option value="France">France</option>
+                                
+                                    <option value="Portugal">Portugal</option>
+                                
+                                    <option value="Spain">Spain</option>
+                                
+                                    <option value="United Kingdom">United Kingdom</option>
+                                
+                                    <option value="Austria">Austria</option>
+                                
+                                    <option value="Luxembourg">Luxembourg</option>
+                                
+                                    <option value="Cyprus">Cyprus</option>
+                                
+                                    <option value="Guyana">Guyana</option>
+                                
+                                    <option value="Jamaica">Jamaica</option>
+                                
+                                    <option value="Serbia">Serbia</option>
+                                
+                                    <option value="Slovakia">Slovakia</option>
+                                
+                                    <option value="Brunei Darussalam">Brunei Darussalam</option>
+                                
+                                    <option value="Japan">Japan</option>
+                                
+                                    <option value="Iraq">Iraq</option>
+                                
+                                    <option value="Israel">Israel</option>
+                                
+                                    <option value="Albania">Albania</option>
+                                
+                                    <option value="Kuwait">Kuwait</option>
+                                
+                                    <option value="Malta">Malta</option>
+                                
+                                    <option value="Morocco">Morocco</option>
+                                
+                                    <option value="Russian Federation">Russian Federation</option>
+                                
+                                    <option value="Sweden">Sweden</option>
+                                
+                                    <option value="Kazakhstan">Kazakhstan</option>
+                                
+                                    <option value="Tajikistan">Tajikistan</option>
+                                
+                                    <option value="Uzbekistan">Uzbekistan</option>
+                                
+                                    <option value="Rep. of Korea">Rep. of Korea</option>
+                                
+                                    <option value="Lao People's Dem. Rep.">Lao People's Dem. Rep.</option>
+                                
+                                    <option value="Latvia">Latvia</option>
+                                
+                                    <option value="Estonia">Estonia</option>
+                                
+                                    <option value="Lithuania">Lithuania</option>
+                                
+                                    <option value="Mauritius">Mauritius</option>
+                                
+                                    <option value="Oman">Oman</option>
+                                
+                                    <option value="Sudan">Sudan</option>
+                                
+                                    <option value="Yemen">Yemen</option>
+                                
+                                    <option value="Finland">Finland</option>
+                                
+                                    <option value="Aruba">Aruba</option>
+                                
+                                    <option value="Norway">Norway</option>
+                                
+                                    <option value="Nicaragua">Nicaragua</option>
+                                
+                                    <option value="Kenya">Kenya</option>
+                                
+                                    <option value="Somalia">Somalia</option>
+                                
+                                    <option value="Senegal">Senegal</option>
+                                
+                                    <option value="Guinea-Bissau">Guinea-Bissau</option>
+                                
+                                    <option value="Sierra Leone">Sierra Leone</option>
+                                
+                                    <option value="India">India</option>
+                                
+                                    <option value="Ethiopia">Ethiopia</option>
+                                
+                                    <option value="Ghana">Ghana</option>
+                                
+                                    <option value="Namibia">Namibia</option>
+                                
+                                    <option value="Egypt">Egypt</option>
+                                
+                                    <option value="Botswana">Botswana</option>
+                                
+                                    <option value="Dem. Rep. of the Congo">Dem. Rep. of the Congo</option>
+                                
+                                    <option value="Lesotho">Lesotho</option>
+                                
+                                    <option value="Zimbabwe">Zimbabwe</option>
+                                
+                                    <option value="Eswatini">Eswatini</option>
+                                
+                                    <option value="Cuba">Cuba</option>
+                                
+                                    <option value="Gibraltar">Gibraltar</option>
+                                
+                                    <option value="Suriname">Suriname</option>
+                                
+                                    <option value="Thailand">Thailand</option>
+                                
+                                    <option value="Togo">Togo</option>
+                                
+                                    <option value="Iran">Iran</option>
+                                
+                                    <option value="North Macedonia">North Macedonia</option>
+                                
+                                    <option value="Gambia">Gambia</option>
+                                
+                                    <option value="United Rep. of Tanzania">United Rep. of Tanzania</option>
+                                
+                                    <option value="Bahamas">Bahamas</option>
+                                
+                                    <option value="Bermuda">Bermuda</option>
+                                
+                                    <option value="Belize">Belize</option>
+                                
+                                    <option value="Colombia">Colombia</option>
+                                
+                                    <option value="Kyrgyzstan">Kyrgyzstan</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"font": {"color": "black"}, "group": 5, "id": "Argentina", "label": "Argentina", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 2, "id": "Brazil", "label": "Brazil", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 2, "id": "Chile", "label": "Chile", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 2, "id": "Uruguay", "label": "Uruguay", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 3, "id": "Australia", "label": "Australia", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Bahrain", "label": "Bahrain", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "South Africa", "label": "South Africa", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Bangladesh", "label": "Bangladesh", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 7, "id": "Ireland", "label": "Ireland", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 3, "id": "Pakistan", "label": "Pakistan", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 5, "id": "Belgium", "label": "Belgium", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Germany", "label": "Germany", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Hungary", "label": "Hungary", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 3, "id": "Iceland", "label": "Iceland", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 5, "id": "Italy", "label": "Italy", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Netherlands", "label": "Netherlands", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 2, "id": "Angola", "label": "Angola", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 2, "id": "Costa Rica", "label": "Costa Rica", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 8, "id": "El Salvador", "label": "El Salvador", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 8, "id": "Guatemala", "label": "Guatemala", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 8, "id": "Honduras", "label": "Honduras", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 7, "id": "Liberia", "label": "Liberia", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 2, "id": "Mexico", "label": "Mexico", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 2, "id": "Paraguay", "label": "Paraguay", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 2, "id": "Switzerland", "label": "Switzerland", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 2, "id": "Venezuela", "label": "Venezuela", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 5, "id": "Bulgaria", "label": "Bulgaria", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Greece", "label": "Greece", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Romania", "label": "Romania", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "T\u00fcrkiye", "label": "T\u00fcrkiye", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Ukraine", "label": "Ukraine", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 3, "id": "Myanmar", "label": "Myanmar", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "China", "label": "China", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Cambodia", "label": "Cambodia", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Poland", "label": "Poland", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Viet Nam", "label": "Viet Nam", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 8, "id": "Canada", "label": "Canada", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 8, "id": "USA", "label": "USA", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 8, "id": "Sri Lanka", "label": "Sri Lanka", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 3, "id": "Bosnia Herzegovina", "label": "Bosnia Herzegovina", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Burundi", "label": "Burundi", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 10, "id": "Indonesia", "label": "Indonesia", "shape": "dot", "title": "Community: 10"}, {"font": {"color": "black"}, "group": 0, "id": "Madagascar", "label": "Madagascar", "shape": "dot", "title": "Community: 0"}, {"font": {"color": "black"}, "group": 3, "id": "Montenegro", "label": "Montenegro", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Mozambique", "label": "Mozambique", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Nepal", "label": "Nepal", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "New Zealand", "label": "New Zealand", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Nigeria", "label": "Nigeria", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Philippines", "label": "Philippines", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 1, "id": "Uganda", "label": "Uganda", "shape": "dot", "title": "Community: 1"}, {"font": {"color": "black"}, "group": 7, "id": "Burkina Faso", "label": "Burkina Faso", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 8, "id": "Panama", "label": "Panama", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 5, "id": "Czechia", "label": "Czechia", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 7, "id": "Benin", "label": "Benin", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 7, "id": "United Arab Emirates", "label": "United Arab Emirates", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 5, "id": "Denmark", "label": "Denmark", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Greenland", "label": "Greenland", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 8, "id": "Dominican Rep.", "label": "Dominican Rep.", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 8, "id": "Ecuador", "label": "Ecuador", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 3, "id": "Equatorial Guinea", "label": "Equatorial Guinea", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Zambia", "label": "Zambia", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 4, "id": "Fiji", "label": "Fiji", "shape": "dot", "title": "Community: 4"}, {"font": {"color": "black"}, "group": 4, "id": "Nauru", "label": "Nauru", "shape": "dot", "title": "Community: 4"}, {"font": {"color": "black"}, "group": 4, "id": "Tuvalu", "label": "Tuvalu", "shape": "dot", "title": "Community: 4"}, {"font": {"color": "black"}, "group": 5, "id": "France", "label": "France", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Portugal", "label": "Portugal", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Spain", "label": "Spain", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 7, "id": "United Kingdom", "label": "United Kingdom", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 5, "id": "Austria", "label": "Austria", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Luxembourg", "label": "Luxembourg", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Cyprus", "label": "Cyprus", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Guyana", "label": "Guyana", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Jamaica", "label": "Jamaica", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Serbia", "label": "Serbia", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Slovakia", "label": "Slovakia", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 10, "id": "Brunei Darussalam", "label": "Brunei Darussalam", "shape": "dot", "title": "Community: 10"}, {"font": {"color": "black"}, "group": 10, "id": "Japan", "label": "Japan", "shape": "dot", "title": "Community: 10"}, {"font": {"color": "black"}, "group": 7, "id": "Iraq", "label": "Iraq", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 8, "id": "Israel", "label": "Israel", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 5, "id": "Albania", "label": "Albania", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Kuwait", "label": "Kuwait", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Malta", "label": "Malta", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Morocco", "label": "Morocco", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Russian Federation", "label": "Russian Federation", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Sweden", "label": "Sweden", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Kazakhstan", "label": "Kazakhstan", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Tajikistan", "label": "Tajikistan", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Uzbekistan", "label": "Uzbekistan", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 3, "id": "Rep. of Korea", "label": "Rep. of Korea", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Lao People\u0027s Dem. Rep.", "label": "Lao People\u0027s Dem. Rep.", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 6, "id": "Latvia", "label": "Latvia", "shape": "dot", "title": "Community: 6"}, {"font": {"color": "black"}, "group": 6, "id": "Estonia", "label": "Estonia", "shape": "dot", "title": "Community: 6"}, {"font": {"color": "black"}, "group": 6, "id": "Lithuania", "label": "Lithuania", "shape": "dot", "title": "Community: 6"}, {"font": {"color": "black"}, "group": 0, "id": "Mauritius", "label": "Mauritius", "shape": "dot", "title": "Community: 0"}, {"font": {"color": "black"}, "group": 7, "id": "Oman", "label": "Oman", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 7, "id": "Sudan", "label": "Sudan", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 7, "id": "Yemen", "label": "Yemen", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 3, "id": "Finland", "label": "Finland", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 5, "id": "Aruba", "label": "Aruba", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Norway", "label": "Norway", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 8, "id": "Nicaragua", "label": "Nicaragua", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 1, "id": "Kenya", "label": "Kenya", "shape": "dot", "title": "Community: 1"}, {"font": {"color": "black"}, "group": 3, "id": "Somalia", "label": "Somalia", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 9, "id": "Senegal", "label": "Senegal", "shape": "dot", "title": "Community: 9"}, {"font": {"color": "black"}, "group": 9, "id": "Guinea-Bissau", "label": "Guinea-Bissau", "shape": "dot", "title": "Community: 9"}, {"font": {"color": "black"}, "group": 9, "id": "Sierra Leone", "label": "Sierra Leone", "shape": "dot", "title": "Community: 9"}, {"font": {"color": "black"}, "group": 3, "id": "India", "label": "India", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 8, "id": "Ethiopia", "label": "Ethiopia", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 3, "id": "Ghana", "label": "Ghana", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Namibia", "label": "Namibia", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Egypt", "label": "Egypt", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Botswana", "label": "Botswana", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Dem. Rep. of the Congo", "label": "Dem. Rep. of the Congo", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Lesotho", "label": "Lesotho", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Zimbabwe", "label": "Zimbabwe", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 3, "id": "Eswatini", "label": "Eswatini", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 5, "id": "Cuba", "label": "Cuba", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Gibraltar", "label": "Gibraltar", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 5, "id": "Suriname", "label": "Suriname", "shape": "dot", "title": "Community: 5"}, {"font": {"color": "black"}, "group": 3, "id": "Thailand", "label": "Thailand", "shape": "dot", "title": "Community: 3"}, {"font": {"color": "black"}, "group": 7, "id": "Togo", "label": "Togo", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 7, "id": "Iran", "label": "Iran", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 2, "id": "North Macedonia", "label": "North Macedonia", "shape": "dot", "title": "Community: 2"}, {"font": {"color": "black"}, "group": 7, "id": "Gambia", "label": "Gambia", "shape": "dot", "title": "Community: 7"}, {"font": {"color": "black"}, "group": 1, "id": "United Rep. of Tanzania", "label": "United Rep. of Tanzania", "shape": "dot", "title": "Community: 1"}, {"font": {"color": "black"}, "group": 8, "id": "Bahamas", "label": "Bahamas", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 8, "id": "Bermuda", "label": "Bermuda", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 8, "id": "Belize", "label": "Belize", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 8, "id": "Colombia", "label": "Colombia", "shape": "dot", "title": "Community: 8"}, {"font": {"color": "black"}, "group": 5, "id": "Kyrgyzstan", "label": "Kyrgyzstan", "shape": "dot", "title": "Community: 5"}]);
+                  edges = new vis.DataSet([{"from": "Argentina", "to": "Brazil"}, {"from": "Argentina", "to": "Chile"}, {"from": "Argentina", "to": "Uruguay"}, {"from": "Brazil", "to": "Angola"}, {"from": "Brazil", "to": "Costa Rica"}, {"from": "Brazil", "to": "El Salvador"}, {"from": "Brazil", "to": "Guatemala"}, {"from": "Brazil", "to": "Honduras"}, {"from": "Brazil", "to": "Liberia"}, {"from": "Brazil", "to": "Mexico"}, {"from": "Brazil", "to": "Netherlands"}, {"from": "Brazil", "to": "Paraguay"}, {"from": "Brazil", "to": "Switzerland"}, {"from": "Brazil", "to": "Uruguay"}, {"from": "Brazil", "to": "Venezuela"}, {"from": "Chile", "to": "Venezuela"}, {"from": "Uruguay", "to": "Costa Rica"}, {"from": "Uruguay", "to": "El Salvador"}, {"from": "Uruguay", "to": "Mexico"}, {"from": "Uruguay", "to": "Nicaragua"}, {"from": "Uruguay", "to": "Venezuela"}, {"from": "Australia", "to": "Argentina"}, {"from": "Bahrain", "to": "South Africa"}, {"from": "South Africa", "to": "Botswana"}, {"from": "South Africa", "to": "Dem. Rep. of the Congo"}, {"from": "South Africa", "to": "Lesotho"}, {"from": "South Africa", "to": "Mozambique"}, {"from": "South Africa", "to": "Namibia"}, {"from": "South Africa", "to": "Pakistan"}, {"from": "South Africa", "to": "Zimbabwe"}, {"from": "South Africa", "to": "Eswatini"}, {"from": "South Africa", "to": "Zambia"}, {"from": "Bangladesh", "to": "Ireland"}, {"from": "Bangladesh", "to": "Pakistan"}, {"from": "Ireland", "to": "United Kingdom"}, {"from": "Pakistan", "to": "Bosnia Herzegovina"}, {"from": "Pakistan", "to": "Finland"}, {"from": "Pakistan", "to": "Iceland"}, {"from": "Pakistan", "to": "Kenya"}, {"from": "Pakistan", "to": "Kuwait"}, {"from": "Pakistan", "to": "Montenegro"}, {"from": "Pakistan", "to": "Oman"}, {"from": "Pakistan", "to": "Somalia"}, {"from": "Pakistan", "to": "United Arab Emirates"}, {"from": "Belgium", "to": "Germany"}, {"from": "Belgium", "to": "Hungary"}, {"from": "Belgium", "to": "Iceland"}, {"from": "Belgium", "to": "Italy"}, {"from": "Belgium", "to": "Netherlands"}, {"from": "Germany", "to": "Austria"}, {"from": "Germany", "to": "France"}, {"from": "Germany", "to": "Hungary"}, {"from": "Germany", "to": "Italy"}, {"from": "Germany", "to": "Luxembourg"}, {"from": "Germany", "to": "Netherlands"}, {"from": "Germany", "to": "Poland"}, {"from": "Hungary", "to": "Poland"}, {"from": "Hungary", "to": "Serbia"}, {"from": "Hungary", "to": "Slovakia"}, {"from": "Italy", "to": "Albania"}, {"from": "Italy", "to": "Australia"}, {"from": "Italy", "to": "Austria"}, {"from": "Italy", "to": "Bulgaria"}, {"from": "Italy", "to": "Cyprus"}, {"from": "Italy", "to": "Czechia"}, {"from": "Italy", "to": "Denmark"}, {"from": "Italy", "to": "France"}, {"from": "Italy", "to": "Greece"}, {"from": "Italy", "to": "Hungary"}, {"from": "Italy", "to": "Kuwait"}, {"from": "Italy", "to": "Malta"}, {"from": "Italy", "to": "Montenegro"}, {"from": "Italy", "to": "Morocco"}, {"from": "Italy", "to": "Netherlands"}, {"from": "Italy", "to": "Portugal"}, {"from": "Italy", "to": "Romania"}, {"from": "Italy", "to": "Russian Federation"}, {"from": "Italy", "to": "Spain"}, {"from": "Italy", "to": "Sweden"}, {"from": "Italy", "to": "United Arab Emirates"}, {"from": "Italy", "to": "T\u00fcrkiye"}, {"from": "Netherlands", "to": "Austria"}, {"from": "Netherlands", "to": "Finland"}, {"from": "Netherlands", "to": "France"}, {"from": "Netherlands", "to": "Greece"}, {"from": "Netherlands", "to": "Hungary"}, {"from": "Netherlands", "to": "Aruba"}, {"from": "Netherlands", "to": "Norway"}, {"from": "Netherlands", "to": "Poland"}, {"from": "Netherlands", "to": "Portugal"}, {"from": "Netherlands", "to": "Spain"}, {"from": "Netherlands", "to": "Sweden"}, {"from": "Netherlands", "to": "Ukraine"}, {"from": "Netherlands", "to": "United Kingdom"}, {"from": "Netherlands", "to": "USA"}, {"from": "Costa Rica", "to": "Panama"}, {"from": "El Salvador", "to": "Guatemala"}, {"from": "Mexico", "to": "El Salvador"}, {"from": "Paraguay", "to": "Mexico"}, {"from": "Paraguay", "to": "Uruguay"}, {"from": "Bulgaria", "to": "Greece"}, {"from": "Bulgaria", "to": "Romania"}, {"from": "Bulgaria", "to": "T\u00fcrkiye"}, {"from": "Bulgaria", "to": "Ukraine"}, {"from": "Greece", "to": "Belgium"}, {"from": "Greece", "to": "Cyprus"}, {"from": "Greece", "to": "Germany"}, {"from": "Greece", "to": "Hungary"}, {"from": "Greece", "to": "Poland"}, {"from": "Greece", "to": "Portugal"}, {"from": "Romania", "to": "Germany"}, {"from": "Romania", "to": "Spain"}, {"from": "Romania", "to": "Sweden"}, {"from": "T\u00fcrkiye", "to": "Finland"}, {"from": "T\u00fcrkiye", "to": "Russian Federation"}, {"from": "Myanmar", "to": "China"}, {"from": "Myanmar", "to": "Pakistan"}, {"from": "China", "to": "Angola"}, {"from": "China", "to": "Bangladesh"}, {"from": "China", "to": "Bosnia Herzegovina"}, {"from": "China", "to": "Burundi"}, {"from": "China", "to": "El Salvador"}, {"from": "China", "to": "Indonesia"}, {"from": "China", "to": "Madagascar"}, {"from": "China", "to": "Montenegro"}, {"from": "China", "to": "Mozambique"}, {"from": "China", "to": "Nepal"}, {"from": "China", "to": "New Zealand"}, {"from": "China", "to": "Nigeria"}, {"from": "China", "to": "Pakistan"}, {"from": "China", "to": "Philippines"}, {"from": "China", "to": "Viet Nam"}, {"from": "China", "to": "Uganda"}, {"from": "China", "to": "USA"}, {"from": "China", "to": "Burkina Faso"}, {"from": "Cambodia", "to": "Germany"}, {"from": "Cambodia", "to": "Poland"}, {"from": "Cambodia", "to": "Viet Nam"}, {"from": "Poland", "to": "Belgium"}, {"from": "Poland", "to": "Czechia"}, {"from": "Poland", "to": "Denmark"}, {"from": "Poland", "to": "Finland"}, {"from": "Poland", "to": "Romania"}, {"from": "Poland", "to": "Ukraine"}, {"from": "Viet Nam", "to": "Australia"}, {"from": "Viet Nam", "to": "Finland"}, {"from": "Viet Nam", "to": "Germany"}, {"from": "Viet Nam", "to": "Philippines"}, {"from": "Viet Nam", "to": "Poland"}, {"from": "Canada", "to": "USA"}, {"from": "USA", "to": "Angola"}, {"from": "USA", "to": "Bahamas"}, {"from": "USA", "to": "Bermuda"}, {"from": "USA", "to": "Belize"}, {"from": "USA", "to": "Colombia"}, {"from": "USA", "to": "Costa Rica"}, {"from": "USA", "to": "El Salvador"}, {"from": "USA", "to": "Ethiopia"}, {"from": "USA", "to": "Germany"}, {"from": "USA", "to": "Ghana"}, {"from": "USA", "to": "Guatemala"}, {"from": "USA", "to": "Honduras"}, {"from": "USA", "to": "Italy"}, {"from": "USA", "to": "Jamaica"}, {"from": "USA", "to": "Mexico"}, {"from": "USA", "to": "New Zealand"}, {"from": "USA", "to": "Nicaragua"}, {"from": "USA", "to": "Panama"}, {"from": "USA", "to": "Spain"}, {"from": "USA", "to": "United Arab Emirates"}, {"from": "USA", "to": "United Kingdom"}, {"from": "USA", "to": "Uruguay"}, {"from": "Sri Lanka", "to": "Canada"}, {"from": "Indonesia", "to": "Brunei Darussalam"}, {"from": "Indonesia", "to": "Japan"}, {"from": "Nigeria", "to": "Benin"}, {"from": "Burkina Faso", "to": "Benin"}, {"from": "Burkina Faso", "to": "Liberia"}, {"from": "Panama", "to": "El Salvador"}, {"from": "Panama", "to": "Honduras"}, {"from": "Czechia", "to": "Hungary"}, {"from": "Benin", "to": "United Arab Emirates"}, {"from": "United Arab Emirates", "to": "China"}, {"from": "United Arab Emirates", "to": "Iran"}, {"from": "United Arab Emirates", "to": "Iraq"}, {"from": "United Arab Emirates", "to": "Kuwait"}, {"from": "United Arab Emirates", "to": "Oman"}, {"from": "United Arab Emirates", "to": "India"}, {"from": "United Arab Emirates", "to": "Uzbekistan"}, {"from": "United Arab Emirates", "to": "Yemen"}, {"from": "United Arab Emirates", "to": "Zambia"}, {"from": "Denmark", "to": "Belgium"}, {"from": "Denmark", "to": "Greenland"}, {"from": "Dominican Rep.", "to": "Guatemala"}, {"from": "Ecuador", "to": "Guatemala"}, {"from": "Equatorial Guinea", "to": "Zambia"}, {"from": "Fiji", "to": "Nauru"}, {"from": "Fiji", "to": "Tuvalu"}, {"from": "France", "to": "Belgium"}, {"from": "France", "to": "Portugal"}, {"from": "France", "to": "Spain"}, {"from": "France", "to": "United Kingdom"}, {"from": "France", "to": "USA"}, {"from": "Portugal", "to": "Spain"}, {"from": "Spain", "to": "Argentina"}, {"from": "Spain", "to": "Belgium"}, {"from": "Spain", "to": "Cuba"}, {"from": "Spain", "to": "Gibraltar"}, {"from": "Spain", "to": "Ireland"}, {"from": "Spain", "to": "Morocco"}, {"from": "United Kingdom", "to": "Gambia"}, {"from": "United Kingdom", "to": "United Arab Emirates"}, {"from": "Guyana", "to": "Belgium"}, {"from": "Guyana", "to": "France"}, {"from": "Guyana", "to": "Italy"}, {"from": "Guyana", "to": "Jamaica"}, {"from": "Serbia", "to": "Montenegro"}, {"from": "Slovakia", "to": "Czechia"}, {"from": "Japan", "to": "Netherlands"}, {"from": "Iraq", "to": "United Kingdom"}, {"from": "Israel", "to": "USA"}, {"from": "Russian Federation", "to": "Kazakhstan"}, {"from": "Sweden", "to": "Finland"}, {"from": "Kazakhstan", "to": "Iraq"}, {"from": "Kazakhstan", "to": "Tajikistan"}, {"from": "Kazakhstan", "to": "Uzbekistan"}, {"from": "Uzbekistan", "to": "Kyrgyzstan"}, {"from": "Rep. of Korea", "to": "South Africa"}, {"from": "Lao People\u0027s Dem. Rep.", "to": "China"}, {"from": "Lao People\u0027s Dem. Rep.", "to": "Viet Nam"}, {"from": "Latvia", "to": "Estonia"}, {"from": "Lithuania", "to": "Estonia"}, {"from": "Mauritius", "to": "Madagascar"}, {"from": "Oman", "to": "Sudan"}, {"from": "Oman", "to": "Yemen"}, {"from": "Nicaragua", "to": "El Salvador"}, {"from": "Nicaragua", "to": "Honduras"}, {"from": "Senegal", "to": "Guinea-Bissau"}, {"from": "Senegal", "to": "Sierra Leone"}, {"from": "India", "to": "Bangladesh"}, {"from": "India", "to": "Ethiopia"}, {"from": "India", "to": "Finland"}, {"from": "India", "to": "Germany"}, {"from": "India", "to": "Ghana"}, {"from": "India", "to": "Ireland"}, {"from": "India", "to": "Kenya"}, {"from": "India", "to": "Namibia"}, {"from": "India", "to": "Nepal"}, {"from": "India", "to": "Paraguay"}, {"from": "India", "to": "Philippines"}, {"from": "India", "to": "Viet Nam"}, {"from": "India", "to": "South Africa"}, {"from": "India", "to": "Egypt"}, {"from": "Suriname", "to": "Italy"}, {"from": "Suriname", "to": "Jamaica"}, {"from": "Thailand", "to": "Finland"}, {"from": "Thailand", "to": "Germany"}, {"from": "Thailand", "to": "Iceland"}, {"from": "Thailand", "to": "Namibia"}, {"from": "Thailand", "to": "New Zealand"}, {"from": "Thailand", "to": "Poland"}, {"from": "Thailand", "to": "South Africa"}, {"from": "Thailand", "to": "USA"}, {"from": "Togo", "to": "Benin"}, {"from": "North Macedonia", "to": "Switzerland"}, {"from": "United Rep. of Tanzania", "to": "Kenya"}, {"from": "United Rep. of Tanzania", "to": "Uganda"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

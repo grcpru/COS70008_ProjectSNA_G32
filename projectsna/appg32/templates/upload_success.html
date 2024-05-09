@@ -10,7 +10,8 @@
     <p>Your file has been successfully uploaded.</p>
     <p>What would you like to do next?</p>
     <button onclick="exploreUploadedDataset()">Explore Uploaded Dataset</button>
-    <button onclick="analyzeData()">Analysis Data</button>
+    <button onclick="analyzeData()">Analyze Data</button>
+    <button onclick="visualizeNetwork()">Visualize Network</button> <!-- New button for network visualization -->
 
     <script>
         function exploreUploadedDataset() {
@@ -21,6 +22,11 @@
         function analyzeData() {
             // Redirect to the Analyze Data page
             window.location.href = "{% url 'analyze_data' %}";
+        }
+
+        function visualizeNetwork() {
+            // Redirect to the Network Visualization page
+            window.location.href = "{% url 'network_visualize' %}";
         }
     </script>
 </body>
