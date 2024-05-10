@@ -13,6 +13,16 @@ html, body {
     margin: 0;
 }
 
+.left-align {
+    text-align: left;
+}
+
+.img-left {
+    display: block;
+    margin-right: auto;
+    margin-left: 0;
+}
+
 .container {
     width: 80%;
     margin: auto;

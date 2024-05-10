@@ -1,17 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
-    <title>Network Statistics</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Network Analysis Application</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
-    <h1>Network Statistics</h1>
-    <h2>General Network Statistics</h2>
-    <div>{{ single_stats|safe }}</div>  <!-- Use the safe filter here -->
-    <h2>Node-Level Descriptive Statistics</h2>
-    <div>{{ multi_stats|safe }}</div>  <!-- And here -->
-    <h2>Degree Distribution</h2>
-    <img src="data:image/png;base64,{{ graph }}">
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+    <div class="site-content" style="flex: 1;">
+        <!-- Set background image for header with inline CSS for demonstration -->
+        <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}'); background-size: cover; background-position: center;">
+            <div class="container">
+                <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
+                <nav>
+                    <ul class="navbar">  <!-- Ensure this class matches the one used in the CSS for styling -->
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <main class="container mt-5">
+            <h2 class="mb-4">Network Statistics</h2>
+            
+            <section>
+                <h3 style="text-align: left;">General Network Statistics</h3>
+                <div class="table-responsive">
+                    {{ single_stats|safe }}  <!-- Use the safe filter to render HTML table -->
+                </div>
+            </section>
+            
+            <section>
+                <h3 style="text-align: left;">Node-Level Descriptive Statistics</h3>
+                <div class="table-responsive">
+                    {{ multi_stats|safe }}  <!-- Use the safe filter to render HTML table -->
+                </div>
+            </section>
+            
+            <section>
+                <h3 style="text-align: left;">Degree Distribution</h3>
+                <img src="data:image/png;base64,{{ graph }}" alt="Degree Distribution Chart" class="img-fluid img-left">
+            </section>
+        </main>
+    </div>
+
+    {% comment %} <footer style="background-color: #222; color: #fff; text-align: center; padding: 10px 0; width: 100%;">
+        <p>&copy; 2024 Project SNA Group 32. All rights reserved.</p>
+    </footer> {% endcomment %}
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 </body>
 </html>

@@ -1,35 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Network Graph</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Visualization</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <script src="{% static 'js/network_visualization.js' %}"></script>
 </head>
 <body>
-    <h1>Network Graph</h1>
-    <label for="community-select">Select Community:</label>
-    <select id="community-select">
-        <option value="all">All</option>
-        {% for community in communities %}
-        <option value="{{ community }}">{{ community }}</option>
-        {% endfor %}
-    </select>
-    <label for="node-select">Select Node:</label>
-    <select id="node-select">
-        <option value="">Select a node</option>
-        {% for node in nodes %}
-        <option value="{{ node.id }}">{{ node.label }}</option>
-        {% endfor %}
-    </select>
-    <div id="network-graph"></div>
-
-    <script>
-        var graphData = {{ graph_data|safe }};
-        renderNetworkGraph(graphData);
-    </script>
+    <div class="container mt-5">
+        <h2 class="mb-4">Network Visualization</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="community-select">Select Community:</label>
+                    <select id="community-select" class="form-control">
+                        <option value="all">All</option>
+                        {% for community in communities %}
+                        <option value="{{ community }}">{{ community }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="node-select">Select Node:</label>
+                    <select id="node-select" class="form-control">
+                        <option value="">Select a node</option>
+                        {% for node in nodes %}
+                        <option value="{{ node.id }}">{{ node.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div id="network-graph" style="height: 500px;"></div>
+            </div>
+        </div>
+        <script>
+            var graphData = {{ graph_data|safe }};
+            renderNetworkGraph(graphData);
+        </script>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
-
-

@@ -1,33 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Success</title>
+    <title>Social Network Analysis Application</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
-    <h1>Upload Successful</h1>
-    <p>Your file has been successfully uploaded.</p>
-    <p>What would you like to do next?</p>
-    <button onclick="exploreUploadedDataset()">Explore Uploaded Dataset</button>
-    <button onclick="analyzeData()">Analyze Data</button>
-    <button onclick="visualizeNetwork()">Visualize Network</button> <!-- New button for network visualization -->
-
-    <script>
-        function exploreUploadedDataset() {
-            // Redirect to the Explore Datasets page
-            window.location.href = "{% url 'explore_datasets' %}";
-        }
-
-        function analyzeData() {
-            // Redirect to the Analyze Data page
-            window.location.href = "{% url 'analyze_data' %}";
-        }
-
-        function visualizeNetwork() {
-            // Redirect to the Network Visualization page
-            window.location.href = "{% url 'network_visualize' %}";
-        }
-    </script>
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+    <div class="site-content" style="flex: 1;">
+        <!-- Set background image for header with inline CSS for demonstration -->
+        <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}'); background-size: cover; background-position: center;">
+            <div class="container">
+                <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
+                <nav>
+                    <ul class="navbar">  <!-- Ensure this class matches the one used in the CSS for styling -->
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <h2>Upload Successful</h2>
+                    <p>Your file has been successfully uploaded. What would you like to do next?</p>
+                    <div class="action-buttons">
+                        <a href="{% url 'explore_datasets' %}" class="btn btn-primary">Explore Datasets</a>
+                        <a href="{% url 'network_statistics' %}" class="btn btn-primary">Descriptive Statistics</a>
+                        <a href="{% url 'network_visualize' %}" class="btn btn-primary">Network Visualization</a>
+                        <a href="{% url 'network_visualize' %}" class="btn btn-primary">Model Analysis</a>
+                    </div>
+            </div>
+        </main>
+    </div>
+    <footer style="background-color: #222; color: #fff; text-align: center; padding: 10px 0; width: 100%;">
+        <p>&copy; 2024 Project SNA Group 32. All rights reserved.</p>
+    </footer>
 </body>
 </html>
