@@ -1,30 +1,40 @@
-<!-- templates/landing_page.html -->
 <!DOCTYPE html>
 {% load static %}
 
-<html lang="en">
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Network Analysis Application</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
-    <header>
-        <h1>Welcome to the Social Network Analysis Application</h1>
-    </header>
-    <main>
-        <div class="container">
-            <p>This application allows you to perform in-depth analysis of social networks using advanced statistical models.</p>
-            <p>Get started by uploading your network data or exploring pre-loaded datasets.</p>
-            <div class="buttons">
-                <a href="{% url 'upload_dataset' %}" class="btn btn-primary">Upload Data</a>
-                <a href="{% url 'explore_datasets' %}" class="btn btn-secondary">Explore Datasets</a>
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+    <div class="site-content" style="flex: 1;">
+        <!-- Set background image for header with inline CSS for demonstration -->
+        <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}'); background-size: cover; background-position: center;">
+            <div class="container">
+                <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
+                <nav>
+                    <ul class="navbar">  <!-- Ensure this class matches the one used in the CSS for styling -->
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                    </ul>
+                </nav>
             </div>
-        </div>
-    </main>
-    <footer>
-        <p>&copy; 2024 Project SNA Group 32</p>
+        </header>
+        <main>
+            <div class="container">
+                <p>This application allows you to perform in-depth analysis of trade networks using advanced statistical models and visualizations to identify key market players and trading patterns.</p>
+                <div class="action-buttons">
+                    <a href="{% url 'upload_dataset' %}" class="btn btn-primary">Upload Data</a>
+                    <a href="{% url 'explore_datasets' %}" class="btn btn-secondary">Explore Datasets</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <footer style="background-color: #222; color: #fff; text-align: center; padding: 10px 0; width: 100%;">
+        <p>&copy; 2024 Project SNA Group 32. All rights reserved.</p>
     </footer>
 </body>
 </html>

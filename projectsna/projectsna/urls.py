@@ -6,7 +6,9 @@ from appg32 import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.landing_page),
+    path('', views.landing_page, name='home'),
+    path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact'),
     path('upload/', views.upload_data, name='upload_data'),
     path('upload_dataset/', views.upload_dataset, name='upload_dataset'),
     path('success/', views.upload_success, name='upload_success'),

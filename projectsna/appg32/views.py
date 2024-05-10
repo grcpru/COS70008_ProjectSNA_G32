@@ -34,6 +34,13 @@ def upload_data(request):
     elif request.method == 'POST':
         return HttpResponseRedirect('/success/')
 
+def about(request):
+    return render(request, 'about.html')
+
+def contact(request):
+    return render(request, 'contact.html')
+
+
 def upload_dataset(request):
     if request.method == 'POST':
         form = DatasetUploadForm(request.POST, request.FILES)
