@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path
+from django.urls import re_path
+from django.views.static import serve
 from django.conf import settings
 from django.conf.urls.static import static
 from appg32 import views
@@ -19,8 +21,15 @@ urlpatterns = [
     path('network-graph/', views.network_graph, name='network_graph'),
     path('visualize/', views.network_view, name='network_visualize'),
     path('network-statistics/', views.network_statistics, name='network_statistics'),
+    path('analyze-dataset/<str:filename>/', views.analyze_dataset, name='analyze-dataset'),
+    re_path(r'^plots/(?P<path>.*)$', serve, {
+        'document_root': settings.PLOT_STORAGE_DIR,
+    }),
 ]
-
+if settings.DEBUG:
+    urlpatterns += [
+        re_path(r'^plots/(?P<path>.*)$', serve, {'document_root': settings.PLOT_STORAGE_DIR}),
+    ]
 # Serve media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,23 +1,43 @@
-<!-- templates/upload_dataset_form.html -->
 <!DOCTYPE html>
 {% load static %}
 
-<html lang="en">
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Dataset</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/upload_form_styles.css' %}">
 </head>
-<body>
-    <div class="upload-form-container">
-        <h1>Upload Dataset</h1>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <label for="dataset" class="upload-form-label">Choose a dataset file:</label><br>
-            <input type="file" id="dataset" name="dataset" accept=".csv" class="upload-form-input"><br><br>
-            <input type="submit" value="Upload" class="upload-form-submit">
-        </form>
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+    <div class="site-content" style="flex: 1;">
+        <!-- Set background image for header with inline CSS for demonstration -->
+        <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}'); background-size: cover; background-position: center;">
+            <div class="container">
+                <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
+                <nav>
+                    <ul class="navbar">  <!-- Ensure this class matches the one used in the CSS for styling -->
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <h2>Upload Dataset</h2>
+                    <p>Choose a dataset file:</p>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" id="dataset" name="dataset" accept=".csv" class="upload-form-input"><br><br>
+                        <input type="submit" value="Upload" class="upload-form-submit">
+                    </form>
+            </div>
+        </main>
     </div>
+    <footer style="background-color: #222; color: #fff; text-align: center; padding: 10px 0; width: 100%;">
+        <p>&copy; 2024 Project SNA Group 32. All rights reserved.</p>
+    </footer>
 </body>
 </html>

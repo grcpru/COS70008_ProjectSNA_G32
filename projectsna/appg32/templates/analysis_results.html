@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ERGM Analysis Results</title>
+</head>
+<body>
+    <h1>ERGM Analysis Results</h1>
+    <p>Max Probability: {{ max_prob }}</p>
+    <p>Best Edge Coefficient: {{ best_edge_coeff }}</p>
+    <p>Best Triangle Coefficient: {{ best_triangle_coeff }}</p>
+    <p>Weighted Average Edge Coefficient: {{ weighted_edge_coeff }}</p>
+    <p>Weighted Average Triangle Coefficient: {{ weighted_tri_coeff }}</p>
+
+    <h2>Plots</h2>
+    <img src="{{ fig1_path }}" alt="ERGM Plot 1">
+    <img src="{{ fig2_path }}" alt="ERGM Plot 2">
+    <!-- Example of using the returned URL in a template -->
+    <img src="{{ plot_url }}" alt="Generated Plot">
+
+
+    <a href="/">Go Back</a>
+</body>
+</html>

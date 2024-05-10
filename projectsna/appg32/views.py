@@ -1,10 +1,12 @@
 from django.http import HttpResponse
 import os
+import logging
 import pandas as pd
 import numpy as np
 import dtale
 import dtale.views
 from django.shortcuts import render, HttpResponseRedirect
+from django.http import HttpResponse
 from .forms import DatasetUploadForm
 from django.conf import settings
 import networkx as nx
@@ -21,6 +23,7 @@ from io import BytesIO
 import base64
 import matplotlib.pyplot as plt
 from django.template.loader import get_template
+
 
 # Switch to 'Agg' backend for matplotlib
 plt.switch_backend('Agg')
@@ -39,7 +42,6 @@ def about(request):
 
 def contact(request):
     return render(request, 'contact.html')
-
 
 def upload_dataset(request):
     if request.method == 'POST':
@@ -76,120 +78,6 @@ def explore_file(request, file):
 
 def upload_success(request):
     return render(request, 'upload_success.html')
-
-def compute_weight(G, edge_coeff, tri_coeff):
-    '''
-    Compute the probability weight on graph G
-    '''
-    edge_count = len(G.edges())
-    triangles = sum(nx.triangles(G).values())
-    return np.exp(edge_count * edge_coeff + triangles * tri_coeff)
-
-def permute_graph(G):
-    '''
-    Return a new graph with an edge randomly added or subtracted from G
-    '''
-    G1 = copy.deepcopy(G)
-    d = nx.density(G1)
-    r = random.random()
-    if (r < 0.5 or d == 0) and d != 1:
-        # Add an edge
-        nodes = G.nodes()
-        n1 = random.choice(nodes)
-        n2 = random.choice(nodes)
-        G1.add_edge(n1, n2)
-    else:
-        # Remove an edge
-        n1, n2 = random.choice(G1.edges())
-        G1.remove_edge(n1, n2)
-    return G1
-
-def mcmc(G, edge_coeff, triangle_coeff, n):
-    '''
-    Use MCMC to generate a sample of networks from an ERG distribution.
-
-    Args:
-        G: The observed network, to seed the graph with
-        edge_coeff: The coefficient on the number of edges
-        triangle_coeff: The coefficient on number of triangles
-        n: The number of samples to generate
-    Returns:
-        A list of graph objects
-    '''
-
-    v = len(G) # number of nodes in G
-    p = nx.density(G) # Probability of a random edge existing
-    current_graph = nx.erdos_renyi_graph(v, p) # Random graph
-    current_w = compute_weight(G, edge_coeff, triangle_coeff)
-    graphs = []
-    while len(graphs) < n:
-        new_graph = permute_graph(current_graph)
-        new_w = compute_weight(new_graph, edge_coeff, triangle_coeff)
-        if new_w > current_w or random.random() < (new_w/current_w):
-            graphs.append(new_graph)
-            current_w = new_w
-    return graphs
-
-def sum_weights(graphs, edge_coeff, tri_coeff):
-    '''
-    Sum the probability weights on every graph in graphs
-    '''
-    total = 0.0
-    for g in graphs:
-        total += compute_weight(g, edge_coeff, tri_coeff)
-    return total
-
-def fit_ergm(G, coeff_samples=100, graph_samples=1000, return_all=False):
-    '''
-    Use MCMC to sample possible coefficients, and return the best fits.
-
-    Args:
-        G: The observed graph to fit
-        coeff_samples: The number of coefficient combinations to sample
-        graph_samples: The number of graphs to sample for each set of coeffs
-        return_all: If True, return all sampled values. Otherwise, only best.
-    Returns:
-        If return_all=False, returns a tuple of values,
-            (best_edge_coeff, best_triangle_coeff, best_p)
-        where p is the estimated probability of observing the graph G with
-        the fitted parameters.
-
-        Otherwise, return a tuple of lists:
-            (edge_coeffs, triangle_coeffs, probs)
-    '''
-    edge_coeffs = [0]
-    triangle_coeffs = [0]
-    probs = [None]
-
-    while len(probs) < coeff_samples:
-        # Make the jump size larger early on, and smaller toward the end
-        w = coeff_samples/50.0
-        s = np.sqrt(w/len(probs))
-        # Pick new coefficients to try:
-        edge_coeff = edge_coeffs[-1] +  random.normalvariate(0, s)
-        triangle_coeff = triangle_coeffs[-1] + random.normalvariate(0, s)
-        # Check how likely the observed graph is under this distribution:
-        graphs = mcmc(G, edge_coeff, triangle_coeff, graph_samples)
-        sum_weight = sum_weights(graphs, edge_coeff, triangle_coeff)
-        p = compute_weight(G, edge_coeff, triangle_coeff) / sum_weight
-        # Decide whether to accept the jump:
-        if p > probs[-1] or random.random() < (p / probs[-1]):
-            edge_coeffs.append(edge_coeff)
-            triangle_coeffs.append(triangle_coeff)
-            probs.append(p)
-        else:
-            edge_coeffs.append(edge_coeffs[-1])
-            triangle_coeffs.append(triangle_coeffs[-1])
-            probs.append(probs[1])
-    # Return either the best values, or all of them:
-    if not return_all:
-        i = np.argmax(probs)
-        best_p = probs[i]
-        best_edge_coeff = edge_coeffs[i]
-        best_triangle_coeff = triangle_coeffs[i]
-        return best_edge_coeff, best_triangle_coeff, best_p  # Modified line
-    else:
-        return edge_coeffs, triangle_coeffs, probs
 
 def analyze_data(request):
     # Define the path to the uploaded file
@@ -387,3 +275,221 @@ def network_statistics(request):
         'graph': graph  # graph is a base64-encoded PNG image
     }
     return render(request, 'network_statistics.html', context)
+
+def compute_weight(G, edge_coeff, tri_coeff):
+    '''
+    Compute the probability weight on graph G
+    '''
+    edge_count = len(G.edges())
+    triangles = sum(nx.triangles(G).values())
+    return np.exp(edge_count * edge_coeff + triangles * tri_coeff)
+
+def permute_graph(G):
+    '''
+    Return a new graph with an edge randomly added or subtracted from G
+    '''
+    G1 = copy.deepcopy(G)
+    d = nx.density(G1)
+    r = random.random()
+    if (r < 0.5 or d == 0) and d != 1:
+        # Add an edge
+        nodes = G.nodes()
+        n1 = random.choice(nodes)
+        n2 = random.choice(nodes)
+        G1.add_edge(n1, n2)
+    else:
+        # Remove an edge
+        n1, n2 = random.choice(G1.edges())
+        G1.remove_edge(n1, n2)
+    return G1
+
+def mcmc(G, edge_coeff, triangle_coeff, n):
+    '''
+    Use MCMC to generate a sample of networks from an ERG distribution.
+
+    Args:
+        G: The observed network, to seed the graph with
+        edge_coeff: The coefficient on the number of edges
+        triangle_coeff: The coefficient on number of triangles
+        n: The number of samples to generate
+    Returns:
+        A list of graph objects
+    '''
+
+    v = len(G) # number of nodes in G
+    p = nx.density(G) # Probability of a random edge existing
+    current_graph = nx.erdos_renyi_graph(v, p) # Random graph
+    current_w = compute_weight(G, edge_coeff, triangle_coeff)
+    graphs = []
+    while len(graphs) < n:
+        new_graph = permute_graph(current_graph)
+        new_w = compute_weight(new_graph, edge_coeff, triangle_coeff)
+        if new_w > current_w or random.random() < (new_w/current_w):
+            graphs.append(new_graph)
+            current_w = new_w
+    return graphs
+
+def sum_weights(graphs, edge_coeff, tri_coeff):
+    '''
+    Sum the probability weights on every graph in graphs
+    '''
+    total = 0.0
+    for g in graphs:
+        total += compute_weight(g, edge_coeff, tri_coeff)
+    return total
+
+def data_prep_model():
+    try:
+        file_path = os.path.join(settings.MEDIA_ROOT, 'trade_data_rice.csv')
+        data = pd.read_csv(file_path)
+        edges = data[['exporter_name', 'importer_name', 'value']].copy()
+        G_df = nx.from_pandas_edgelist(data, 'exporter_name', 'importer_name', edge_attr='value')
+
+        #G_df = nx.from_pandas_edgelist(edges, 'exporter_name', 'importer_name', edge_attr=True)
+        #G_df = nx.from_pandas_edgelist(data, 'exporter_name', 'importer_name', edge_attr=['value'])
+
+        return G_df
+    except Exception as e:
+        print(f"Error in data_prep_model: {e}")
+        return None
+    
+def fit_ergm(G, coeff_samples=100, graph_samples=1000, return_all=False):
+    edge_coeffs = []
+    triangle_coeffs = []
+    probs = []
+    for _ in range(coeff_samples):
+        edge_coeff = random.normalvariate(0, 1)
+        triangle_coeff = random.normalvariate(0, 1)
+        graphs = mcmc(G, edge_coeff, triangle_coeff, graph_samples)
+        sum_weight = sum_weights(graphs, edge_coeff, triangle_coeff)
+        if sum_weight > 0:  # Make sure sum_weight is not zero or negative
+            prob = compute_weight(G, edge_coeff, triangle_coeff) / sum_weight
+            edge_coeffs.append(edge_coeff)
+            triangle_coeffs.append(triangle_coeff)
+            probs.append(prob)
+
+    if not probs:  # Check if the list is empty
+        return None  # or return a default like (0, 0, 0)
+
+    best_index = np.argmax(probs)
+    if return_all:
+        return (edge_coeffs, triangle_coeffs, probs)
+    else:
+        return (edge_coeffs[best_index], triangle_coeffs[best_index], probs[best_index])
+
+def plot_ergm_results(edge_coeffs, triangle_coeffs, probs):
+    if not edge_coeffs or not triangle_coeffs or not probs:
+        return None  # Return None if any list is empty
+
+    try:
+        i = np.argmax(probs)
+        max_prob = max(probs)
+        best_edge_coeff = edge_coeffs[i]
+        best_triangle_coeff = triangle_coeffs[i]
+
+        fig1 = plt.figure(figsize=(8, 4))
+        ax = fig1.add_subplot(111)
+        p1, = ax.plot(edge_coeffs)
+        p2, = ax.plot(triangle_coeffs)
+        ax.set_ylabel("Coefficient Value")
+        ax.set_xlabel("Iteration")
+        ax.legend([p1, p2], ["Edge Coefficient", "Triangle Coefficient"])
+
+        weighted_edge_coeffs = np.array(edge_coeffs[1:]) * np.array(probs[1:])
+        weighted_edge_coeff = np.sum(weighted_edge_coeffs) / np.sum(probs[1:])
+
+        weighted_tri_coeffs = np.array(triangle_coeffs[1:]) * np.array(probs[1:])
+        weighted_tri_coeff = np.sum(weighted_tri_coeffs) / np.sum(probs[1:])
+
+        fig2 = plt.figure(figsize=(12, 4))
+        ax1 = fig2.add_subplot(121)
+        ax1.hist(edge_coeffs[1:], weights=-np.log(probs[1:]))
+        ax1.set_title("Edge Coefficient")
+        ax1.set_xlabel("Coefficient Value")
+
+        ax2 = fig2.add_subplot(122)
+        ax2.hist(triangle_coeffs[1:], weights=-np.log(probs[1:]))
+        ax2.set_title("Triangle Coefficient")
+        ax2.set_xlabel("Coefficient Value")
+
+        plt.close('all')  # Ensure all figures are closed after creation
+        return {
+            'max_prob': max_prob,
+            'best_edge_coeff': best_edge_coeff,
+            'best_triangle_coeff': best_triangle_coeff,
+            'weighted_edge_coeff': compute_weighted_coeff(edge_coeffs, probs),
+            'weighted_tri_coeff': compute_weighted_coeff(triangle_coeffs, probs),
+            'fig1': fig1,
+            'fig2': fig2
+        }
+    except Exception as e:
+        print(f"Error in plot_ergm_results: {e}")
+        return None
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+def save_plot(fig, filename):
+    try:
+        path = os.path.join(settings.PLOT_STORAGE_DIR, filename)
+        fig.savefig(path)
+        plt.close(fig)  # Close the plot explicitly after saving
+        return path
+    except Exception as e:
+        print(f"Failed to save the plot: {e}")
+        return None
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+def analyze_dataset(request, filename):
+    try:
+        # Construct the full file path
+        file_path = os.path.join(settings.MEDIA_ROOT, filename)
+        # Attempt to read the CSV file into a pandas DataFrame
+        data = pd.read_csv(file_path)
+        # Convert DataFrame to a NetworkX graph
+        G_df = nx.from_pandas_edgelist(data, 'exporter_name', 'importer_name', edge_attr='value')
+
+        # Fit the ERGM model
+        results = fit_ergm(G_df, 100, 10, True)
+        if not results or not all(results):
+            return HttpResponse("Model fitting failed to produce results or produced empty results.", status=500)
+
+        edge_coeffs, triangle_coeffs, probs = results
+        if not edge_coeffs or not triangle_coeffs or not probs:
+            return HttpResponse("Model fitting produced empty coefficients or probabilities.", status=500)
+
+        # Generate plots based on the ERGM results
+        plot_results = plot_ergm_results(edge_coeffs, triangle_coeffs, probs)
+        if not plot_results:
+            return HttpResponse("Failed to generate plots.", status=500)
+
+        # Save plots to files
+        fig1_path = save_plot(plot_results['fig1'], 'ergm_plot1.png')
+        fig2_path = save_plot(plot_results['fig2'], 'ergm_plot2.png')
+        if not fig1_path or not fig2_path:
+            return HttpResponse("Failed to save plot images.", status=500)
+
+        # Prepare context for the template rendering
+        context = {
+            'max_prob': plot_results['max_prob'],
+            'best_edge_coeff': plot_results['best_edge_coeff'],
+            'best_triangle_coeff': plot_results['best_triangle_coeff'],
+            'weighted_edge_coeff': plot_results['weighted_edge_coeff'],
+            'weighted_tri_coeff': plot_results['weighted_tri_coeff'],
+            'fig1_path': fig1_path,
+            'fig2_path': fig2_path
+        }
+
+        # Render the results template with the context
+        return render(request, 'analysis_results.html', context)
+
+    except FileNotFoundError:
+        return HttpResponse("The specified file could not be found.", status=404)
+    except pd.errors.EmptyDataError:
+        return HttpResponse("No data found in the file.", status=400)
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {e}", status=500)
