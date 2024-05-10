@@ -8,6 +8,11 @@ body {
     color: #333;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
 .container {
     width: 80%;
     margin: auto;
@@ -31,9 +36,6 @@ body {
     align-items: center;
     text-shadow: 2px 2px 8px rgba(0,0,0,0.7); /* Text shadow for better visibility */
 }
-
-/* Other styles remain unchanged */
-
 
 .site-header h1 {
     margin: 0;
@@ -87,15 +89,36 @@ body {
     background-color: #6C757D;
 }
 
-html, body {
-    height: 100%;
-    margin: 0;
-}
-
 .site-content {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+}
+/* Dataset List Specific Styles */
+.dataset-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust based on desired width */
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.dataset-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.dataset-item a {
+    text-decoration: none;
+    color: #007bff;
+    display: block;
+    margin-top: 10px;
+}
+
+.dataset-item:hover {
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
 }
 
 footer {

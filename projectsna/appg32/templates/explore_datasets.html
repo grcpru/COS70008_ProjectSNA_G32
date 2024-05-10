@@ -1,31 +1,44 @@
-{% load static %}  <!-- Add this line to load the static tag -->
-
-{% comment %} <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explore Datasets</title>
-</head>
-<body>
-    <h1>Explore Datasets</h1>
-    <iframe src="{{ dtale_url }}" width="100%" height="800" frameborder="0"></iframe>
-</body>
-</html> {% endcomment %}
-
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explore Datasets</title>
+    <title>Social Network Analysis Application</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
-    <h1>Explore Datasets</h1>
-    <ul>
-        {% for file in files %}
-            <li><a href="{% url 'explore_file' file %}">{{ file }}</a></li>
-        {% endfor %}
-    </ul>
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+    <div class="site-content" style="flex: 1;">
+        <!-- Set background image for header with inline CSS for demonstration -->
+        <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}'); background-size: cover; background-position: center;">
+            <div class="container">
+                <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
+                <nav>
+                    <ul class="navbar">  <!-- Ensure this class matches the one used in the CSS for styling -->
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <h2>Explore Datasets</h2>
+                    <p>Utilize the powerful D-Tale tool embedded in our platform to dynamically explore, analyze, and visualize datasets directly from your browser. D-Tale offers interactive data grids, detailed statistical analyses, and comprehensive charting capabilities to enhance your understanding of trade data.</p>
+                    <div class="dataset-list">
+                        {% for file in files %}
+                            <div class="dataset-item">
+                                <a href="{% url 'explore_file' file %}">{{ file }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+            </div>
+        </main>
+    </div>
+    <footer style="background-color: #222; color: #fff; text-align: center; padding: 10px 0; width: 100%;">
+        <p>&copy; 2024 Project SNA Group 32. All rights reserved.</p>
+    </footer>
 </body>
 </html>
