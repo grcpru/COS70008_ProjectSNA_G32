@@ -26,7 +26,13 @@ html, body {
 .container {
     width: 80%;
     margin: auto;
-    text-align: center; /* Centralize the content of the main container */
+    text-align: left; /* Centralize the content of the main container */
+    padding: 20px;
+}
+
+ul {
+    padding-left: 20px; /* Adjusts padding for bullets */
+    text-align: left;
 }
 
 /* .site-header {
