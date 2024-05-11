@@ -258,7 +258,7 @@ def calculate_network_statistics(dataframe):
 
     multi_stats_df = pd.DataFrame({
         'Statistic': ['In-Degree', 'Out-Degree', 'Betweenness Centrality'],
-        'Total': [np.sum(in_degrees), np.sum(out_degrees), np.nan],
+        'Total': [np.sum(in_degrees), np.sum(out_degrees), np.sum(betweenness_centrality)],
         'Average': [np.mean(in_degrees), np.mean(out_degrees), np.mean(betweenness_centrality)],
         'Max': [np.max(in_degrees), np.max(out_degrees), np.max(betweenness_centrality)],
         'Standard Deviation': [np.std(in_degrees), np.std(out_degrees), np.std(betweenness_centrality)]

@@ -28,10 +28,10 @@
                 <h2>Explore Dataset by D-Tale</h2>
                 <iframe src="{{ dtale_url }}" width="100%" height="600"></iframe>
                     <div class="action-buttons">
-                        <a href="{% url 'upload_dataset' %}" class="btn btn-primary">Upload Dataset</a>
+                        <a href="{% url 'upload_dataset' %}" class="btn btn-primary">Upload Other Datasets</a>
                         <a href="{% url 'network_statistics' %}" class="btn btn-primary">Descriptive Statistics</a>
                         <a href="{% url 'network_visualize' %}" class="btn btn-primary">Network Visualization</a>
-                        {% comment %} <a href="{% url 'analyze-dataset' %}" class="btn btn-primary">Model Analysis</a> {% endcomment %}
+                        <a href="{% url 'analyze_data' %}" class="btn btn-primary">Model Analysis</a>
                     </div>
             </div>
         </main>
