@@ -21,15 +21,13 @@ urlpatterns = [
     path('network-graph/', views.network_graph, name='network_graph'),
     path('visualize/', views.network_view, name='network_visualize'),
     path('network-statistics/', views.network_statistics, name='network_statistics'),
-    path('analyze-dataset/<str:filename>/', views.analyze_dataset, name='analyze-dataset'),
-    re_path(r'^plots/(?P<path>.*)$', serve, {
-        'document_root': settings.PLOT_STORAGE_DIR,
-    }),
+    path('analyze-data/', views.analyze_data, name='analyze_data'),  # Your custom ERGM analysis view
+    path('plot-results/', views.plot_ergm_results, name='plot_ergm_results'),  # Your custom plot view, if needed
 ]
-if settings.DEBUG:
+""" if settings.DEBUG:
     urlpatterns += [
         re_path(r'^plots/(?P<path>.*)$', serve, {'document_root': settings.PLOT_STORAGE_DIR}),
-    ]
+    ] """
 # Serve media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
