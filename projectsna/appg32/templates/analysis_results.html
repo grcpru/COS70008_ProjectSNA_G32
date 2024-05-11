@@ -1,17 +1,30 @@
 <!DOCTYPE html>
 {% load static %}
-
+ 
 <html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Network Analysis Application</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        .export-btn {
+            position: absolute;
+            top: 220px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
     <div class="site-content" style="flex: 1;">
-        <!-- Set background image for header with inline CSS for demonstration -->
-        <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}'); background-size: cover; background-position: center;">
+        <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}'); background-size: cover; background-position: center; position: relative;">
             <div class="container">
                 <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
                 <nav>
@@ -21,31 +34,49 @@
                         <li><a href="{% url 'contact' %}">Contact</a></li>
                     </ul>
                 </nav>
+                <button class="export-btn" onclick="exportReport()">Export Report</button>
             </div>
         </header>
-    <main>
-        <div class="container">
-            <h2>ERGM Analysis Results</h2>
-            <p>Best Edge Coefficient: {{ best_edge_coeff }}</p>
-            <p>Best Triangle Coefficient: {{ best_triangle_coeff }}</p>
-            <p>Weighted Average Edge Coefficient: {{ weighted_edge_coeff }}</p>
-            <p>Weighted Average Triangle Coefficient: {{ weighted_triangle_coeff }}</p>
-            <!-- Display the line plot -->
-            <img src="data:image/png;base64,{{ line_plot }}" alt="Line Plot of Coefficients" align='center'>
-            <!-- Display the histograms -->
-            <img src="data:image/png;base64,{{ hist_plot }}" alt="Histograms of Coefficients" align='center'>
-            
-            <div class="action-buttons">
-                <a href="{% url 'explore_datasets' %}" class="btn btn-primary">Explore Datasets</a>
-                <a href="{% url 'network_statistics' %}" class="btn btn-primary">Descriptive Statistics</a>
-                <a href="{% url 'network_visualize' %}" class="btn btn-primary">Network Visualization</a>
-                {% comment %} <a href="{% url 'analyze_data' %}" class="btn btn-primary">Model Analysis</a> {% endcomment %}
+        <main>
+            <div class="container">
+                <h2>ERGM Analysis Results</h2>
+                <p>Best Edge Coefficient: {{ best_edge_coeff }}</p>
+                <p>Best Triangle Coefficient: {{ best_triangle_coeff }}</p>
+                <p>Weighted Average Edge Coefficient: {{ weighted_edge_coeff }}</p>
+                <p>Weighted Average Triangle Coefficient: {{ weighted_triangle_coeff }}</p>
+                <!-- Display the line plot -->
+                <img src="data:image/png;base64,{{ line_plot }}" alt="Line Plot of Coefficients" align='center'>
+                <!-- Display the histograms -->
+                <img src="data:image/png;base64,{{ hist_plot }}" alt="Histograms of Coefficients" align='center'>
+                
+                <div class="action-buttons">
+                    <a href="{% url 'explore_datasets' %}" class="btn btn-primary">Explore Datasets</a>
+                    <a href="{% url 'network_statistics' %}" class="btn btn-primary">Descriptive Statistics</a>
+                    <a href="{% url 'network_visualize' %}" class="btn btn-primary">Network Visualization</a>
+                    {% comment %} <a href="{% url 'analyze_data' %}" class="btn btn-primary">Model Analysis</a> {% endcomment %}
+                </div>
             </div>
-        </div>
-    </main>
-</div>
-{% comment %} <footer style="background-color: #222; color: #fff; text-align: center; padding: 10px 0; width: 100%;">
-    <p>&copy; 2024 Project SNA Group 32. All rights reserved.</p>
-</footer> {% endcomment %}
+        </main>
+    </div>
+    {% comment %} <footer style="background-color: #222; color: #fff; text-align: center; padding: 10px 0; width: 100%;">
+        <p>&copy; 2024 Project SNA Group 32. All rights reserved.</p>
+    </footer> {% endcomment %}
+    
+    <script>
+        function exportReport() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'pt', 'a4');
+ 
+            html2canvas(document.body).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+ 
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('report.pdf');
+            });
+        }
+    </script>
 </body>
 </html>

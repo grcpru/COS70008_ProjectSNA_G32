@@ -1,28 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
 
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us</title>
+    <title>Social Network Analysis Application</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-
 <body>
-    <h1>Contact Us</h1>
-
-    <h2>Team Members</h2>
-    <ul>
-        <li>Molyka Rasmey Chao - <a href="mailto:104211738@student.swin.edu.au">104211738@student.swin.edu.au</a></li>
-        <li>Ai Ling Ong - <a href="mailto:101211609@student.swin.edu.au">101211609@student.swin.edu.au</a></li>
-        <li>Palida Parichayawong - <a href="mailto:103822045@student.swin.edu.au">103822045@student.swin.edu.au</a></li>
-        <li>Preeyanuch Leelapisuth - <a href="mailto:103800342@student.swin.edu.au">103800342@student.swin.edu.au</a>
-        </li>
-    </ul>
-
-    <h2>Contact Information</h2>
-    <p>Email: <a href="mailto:apmp@student.swin.edu.au">apmp@student.swin.edu.au</a></p>
-    <p>Phone: +61 430 488 569</p>
-
+    <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}');">
+        <div class="container">
+            <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
+            <nav>
+                <ul class="navbar">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'about' %}">About</a></li>
+                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <h2>Contact Us</h2>
+        <section class="team-info">
+            <h3>Team Members</h3>
+            <ul>
+                <li>Molyka Rasmey Chao - <a href="mailto:104211738@student.swin.edu.au">104211738@student.swin.edu.au</a></li>
+                <li>Ai Ling Ong - <a href="mailto:101211609@student.swin.edu.au">101211609@student.swin.edu.au</a></li>
+                <li>Palida Parichayawong - <a href="mailto:103822045@student.swin.edu.au">103822045@student.swin.edu.au</a></li>
+                <li>Preeyanuch Leelapisuth - <a href="mailto:103800342@student.swin.edu.au">103800342@student.swin.edu.au</a>
+            </ul>
+        </section>
+        <section class="contact-info">
+            <h3>Contact Information</h3>
+            <p>Email: <a href="mailto:apmp@student.swin.edu.au">apmp@student.swin.edu.au</a></p>
+            <p>Phone: +61 430 488 569</p>
+        </section>
+  
 </body>
 
 </html>

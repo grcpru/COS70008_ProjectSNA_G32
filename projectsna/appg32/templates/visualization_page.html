@@ -1,21 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Network Visualization</title>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
     <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
         #mynetwork {
             width: 100%;
             height: 750px;
             border: 1px solid lightgray;
+            margin-top: 20px;
+        }
+        label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        select, button {
+            margin-right: 20px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
         }
     </style>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
 </head>
 <body>
     <h1>Network Visualization</h1>
     <div>
-        <label for="select-node">Select a Node by ID</label>
+        <label for="select-node">Select a Node by ID:</label>
         <select id="select-node">
             <option value="">Select a node</option>
             {% for node in nodes %}
@@ -23,7 +52,7 @@
             {% endfor %}
         </select>
         
-        <label for="select-group">Select a Community</label>
+        <label for="select-group">Select a Community:</label>
         <select id="select-group">
             <option value="">Select a Community</option>
             {% for group, group_nodes in grouped_nodes.items %}
@@ -35,115 +64,115 @@
     </div>
     <div id="mynetwork"></div>
     <script type="text/javascript">
-        // Store the original nodes and edges data
-        var originalNodes = new vis.DataSet({{ nodes_json|safe }});
-        var originalEdges = new vis.DataSet({{ edges_json|safe }});
- 
-        var nodes = new vis.DataSet({{ nodes_json|safe }});
-        var edges = new vis.DataSet({{ edges_json|safe }});
- 
-        var container = document.getElementById('mynetwork');
-        var data = {
+    // Store the original nodes and edges data
+    var originalNodes = new vis.DataSet({{ nodes_json|safe }});
+    var originalEdges = new vis.DataSet({{ edges_json|safe }});
+
+    var nodes = new vis.DataSet({{ nodes_json|safe }});
+    var edges = new vis.DataSet({{ edges_json|safe }});
+
+    var container = document.getElementById('mynetwork');
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+    var options = {
+        edges: {
+            hoverWidth: function (edgeWidth) {
+                return Math.max(edgeWidth * 1.5, edgeWidth + 5);
+            },
+            color: {
+                highlight: '#ff0000'
+            },
+            font: {
+                color: '#000000',
+                size: 14,
+                face: 'arial'
+            },
+            smooth: {
+                type: 'dynamic'
+            }
+        },
+        interaction: {
+            hover: true,
+            tooltipDelay: 300
+        },
+        physics: {
+            enabled: true
+        }
+    };
+    var network = new vis.Network(container, data, options);
+
+    document.getElementById('select-node').addEventListener('change', function() {
+        var nodeId = this.value;
+        if (nodeId) {
+            // Get connected nodes and edges
+            var connectedNodes = network.getConnectedNodes(nodeId);
+            connectedNodes.push(nodeId); // Include the selected node itself
+
+            var connectedEdges = network.getConnectedEdges(nodeId);
+
+            // Filter nodes and edges
+            var newNodes = nodes.get({
+                filter: function(node) {
+                    return connectedNodes.includes(node.id);
+                }
+            });
+
+            var newEdges = edges.get({
+                filter: function(edge) {
+                    return connectedEdges.includes(edge.id);
+                }
+            });
+
+            // Update network with filtered data
+            network.setData({
+                nodes: newNodes,
+                edges: newEdges
+            });
+        }
+    });
+
+    document.getElementById('select-group').addEventListener('change', function() {
+        var groupId = this.value;
+        if (groupId) {
+            var selectedNodes = nodes.get({
+                filter: function(node) {
+                    return node.group == groupId;
+                }
+            });
+            var selectedNodeIds = selectedNodes.map(function(node) { return node.id; });
+
+            // Filter nodes and edges
+            var newNodes = nodes.get({
+                filter: function(node) {
+                    return selectedNodeIds.includes(node.id);
+                }
+            });
+
+            var newEdges = edges.get({
+                filter: function(edge) {
+                    return selectedNodeIds.includes(edge.from) && selectedNodeIds.includes(edge.to);
+                }
+            });
+
+            // Update network with filtered data
+            network.setData({
+                nodes: newNodes,
+                edges: newEdges
+            });
+        }
+    });
+
+    document.getElementById('reset-selection').addEventListener('click', function() {
+        // Reset to original data
+        nodes = new vis.DataSet(originalNodes.get());
+        edges = new vis.DataSet(originalEdges.get());
+        network.setData({
             nodes: nodes,
             edges: edges
-        };
-        var options = {
-            edges: {
-                hoverWidth: function (edgeWidth) {
-                    return Math.max(edgeWidth * 1.5, edgeWidth + 5);
-                },
-                color: {
-                    highlight: '#ff0000'
-                },
-                font: {
-                    color: '#000000',
-                    size: 14,
-                    face: 'arial'
-                },
-                smooth: {
-                    type: 'dynamic'
-                }
-            },
-            interaction: {
-                hover: true,
-                tooltipDelay: 300
-            },
-            physics: {
-                enabled: true
-            }
-        };
-        var network = new vis.Network(container, data, options);
- 
-        document.getElementById('select-node').addEventListener('change', function() {
-            var nodeId = this.value;
-            if (nodeId) {
-                // Get connected nodes and edges
-                var connectedNodes = network.getConnectedNodes(nodeId);
-                connectedNodes.push(nodeId); // Include the selected node itself
- 
-                var connectedEdges = network.getConnectedEdges(nodeId);
- 
-                // Filter nodes and edges
-                var newNodes = nodes.get({
-                    filter: function(node) {
-                        return connectedNodes.includes(node.id);
-                    }
-                });
- 
-                var newEdges = edges.get({
-                    filter: function(edge) {
-                        return connectedEdges.includes(edge.id);
-                    }
-                });
- 
-                // Update network with filtered data
-                network.setData({
-                    nodes: newNodes,
-                    edges: newEdges
-                });
-            }
         });
- 
-        document.getElementById('select-group').addEventListener('change', function() {
-            var groupId = this.value;
-            if (groupId) {
-                var selectedNodes = nodes.get({
-                    filter: function(node) {
-                        return node.group == groupId;
-                    }
-                });
-                var selectedNodeIds = selectedNodes.map(function(node) { return node.id; });
- 
-                // Filter nodes and edges
-                var newNodes = nodes.get({
-                    filter: function(node) {
-                        return selectedNodeIds.includes(node.id);
-                    }
-                });
- 
-                var newEdges = edges.get({
-                    filter: function(edge) {
-                        return selectedNodeIds.includes(edge.from) && selectedNodeIds.includes(edge.to);
-                    }
-                });
- 
-                // Update network with filtered data
-                network.setData({
-                    nodes: newNodes,
-                    edges: newEdges
-                });
-            }
-        });
- 
-        document.getElementById('reset-selection').addEventListener('click', function() {
-            // Reset to original data
-            nodes = new vis.DataSet(originalNodes.get());
-            edges = new vis.DataSet(originalEdges.get());
-            network.setData({
-                nodes: nodes,
-                edges: edges
-            });
-        });
-    </script>
+    });
+</script>
 </body>
 </html>
