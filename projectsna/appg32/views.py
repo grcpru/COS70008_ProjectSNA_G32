@@ -156,62 +156,71 @@ def network_graph(request):
     return render(request, 'network_graph.html')
 
 def network_view(request):
-    file_path = os.path.join(settings.MEDIA_ROOT, 'trade_data_rice.csv')
-    df = pd.read_csv(file_path)
-
-    def generate_network_graph(df, source_col='exporter_name', target_col='importer_name', attribute='value', weight_threshold=20):
+    def generate_network_data(data, source_col='exporter_name', target_col='importer_name', attribute='value', weight_threshold=20):
         G = nx.DiGraph()
-
-        # Ensure numeric conversion for the attribute, if it exists
-        if attribute in df.columns:
-            df[attribute] = pd.to_numeric(df[attribute], errors='coerce')
-
-        # Add edges to the graph based on the weight threshold
-        for _, row in df.iterrows():
-            if attribute in df.columns and pd.notnull(row[attribute]):
+ 
+        if attribute in data.columns:
+            data[attribute] = pd.to_numeric(data[attribute], errors='coerce')
+ 
+        for _, row in data.iterrows():
+            if attribute in data.columns and pd.notnull(row[attribute]):
                 if row[attribute] >= weight_threshold:
                     G.add_edge(row[source_col], row[target_col], weight=row[attribute], trade_amount=row[attribute])
             else:
-                G.add_edge(row[source_col], row[target_col])  # Add edges without weight if attribute is missing or below threshold
-
-        # Apply community detection to the whole graph
-        communities = community_louvain.best_partition(G.to_undirected(), weight='weight' if attribute in df.columns else None)
+                G.add_edge(row[source_col], row[target_col])
+ 
+        communities = community_louvain.best_partition(G.to_undirected(), weight='weight' if attribute in data.columns else None)
         num_communities = len(set(communities.values()))
-
-        # Initialize Pyvis Network with a white background, filter menu, and select menu
-        net = Network(height="750px", width="100%", bgcolor="white", font_color="black", filter_menu=True, select_menu=True)
-
-        # Adding nodes with color by community
+ 
+        nodes = []
+        edges = []
         cmap = plt.get_cmap('viridis')
+ 
         for node in G.nodes:
             color = mcolors.rgb2hex(cmap(communities[node] / num_communities))
-            net.add_node(node, title=f"Community: {communities[node]}", group=communities[node], node_color=color)
-
-        # Adding edges with detailed information
+            nodes.append({
+                "id": node,
+                "label": node,
+                "title": f"Community: {communities[node]}",
+                "group": communities[node],
+                "color": color
+            })
+ 
         for src, dst, attr in G.edges(data=True):
             if attribute in attr:
-                title = f"{attribute.capitalize()}: {attr['trade_amount']}"
-                net.add_edge(src, dst, value=attr['weight'], title=title)
+                title = f"Trade Amount: {attr['trade_amount']}"
+                edges.append({
+                    "from": src,
+                    "to": dst,
+                    "value": attr.get('weight', 1),
+                    "title": title
+                })
             else:
-                net.add_edge(src, dst)  # Add edge without title if attribute is missing
-
-        return net
-
-    net = generate_network_graph(df)
-
-    # Extract nodes and edges data from the net object
-    nodes = [{"id": node["id"], "label": node["label"], "color": node["node_color"], "group": node["group"]} for node in net.nodes]
-    edges = [{"from": edge["from"], "to": edge["to"], "value": edge.get("value", 1), "title": edge.get("title", "")} for edge in net.edges]
-
-    graph_data = {
+                edges.append({
+                    "from": src,
+                    "to": dst
+                })
+ 
+        grouped_nodes = {}
+        for node in nodes:
+            group = node['group']
+            if group not in grouped_nodes:
+                grouped_nodes[group] = []
+            grouped_nodes[group].append(node)
+ 
+        return nodes, edges, grouped_nodes
+ 
+    file_path = os.path.join(settings.MEDIA_ROOT, 'trade_data_rice.csv')
+    df = pd.read_csv(file_path)
+ 
+    nodes, edges, grouped_nodes = generate_network_data(df)
+ 
+    return render(request, "visualization_page.html", {
+        "nodes_json": json.dumps(nodes),
+        "edges_json": json.dumps(edges),
         "nodes": nodes,
-        "edges": edges
-    }
-
-    communities = list(set([node["group"] for node in nodes]))
-    node_list = [{"id": node["id"], "label": node["label"]} for node in nodes]
-
-    return render(request, "visualization_page.html", {"graph_data": json.dumps(graph_data), "communities": communities, "nodes": node_list})
+        "grouped_nodes": grouped_nodes
+    })
 
 def calculate_network_statistics(dataframe):
     G = nx.from_pandas_edgelist(dataframe, source='exporter_name', target='importer_name', edge_attr=True, create_using=nx.DiGraph())

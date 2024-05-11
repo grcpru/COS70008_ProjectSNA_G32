@@ -1,52 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Network Visualization</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-    <script src="{% static 'js/network_visualization.js' %}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        #mynetwork {
+            width: 100%;
+            height: 750px;
+            border: 1px solid lightgray;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2 class="mb-4">Network Visualization</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="community-select">Select Community:</label>
-                    <select id="community-select" class="form-control">
-                        <option value="all">All</option>
-                        {% for community in communities %}
-                        <option value="{{ community }}">{{ community }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="node-select">Select Node:</label>
-                    <select id="node-select" class="form-control">
-                        <option value="">Select a node</option>
-                        {% for node in nodes %}
-                        <option value="{{ node.id }}">{{ node.label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div id="network-graph" style="height: 500px;"></div>
-            </div>
-        </div>
-        <script>
-            var graphData = {{ graph_data|safe }};
-            renderNetworkGraph(graphData);
-        </script>
+    <h1>Network Visualization</h1>
+    <div>
+        <label for="select-node">Select a Node by ID</label>
+        <select id="select-node">
+            <option value="">Select a node</option>
+            {% for node in nodes %}
+            <option value="{{ node.id }}">{{ node.label }}</option>
+            {% endfor %}
+        </select>
+        
+        <label for="select-group">Select a Community</label>
+        <select id="select-group">
+            <option value="">Select a group</option>
+            {% for group, group_nodes in grouped_nodes.items %}
+            <option value="{{ group }}">{{ group }}</option>
+            {% endfor %}
+        </select>
+        
+        <button id="reset-selection">Reset Selection</button>
     </div>
-    
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <div id="mynetwork"></div>
+    <script type="text/javascript">
+        // Store the original nodes and edges data
+        var originalNodes = new vis.DataSet({{ nodes_json|safe }});
+        var originalEdges = new vis.DataSet({{ edges_json|safe }});
+ 
+        var nodes = new vis.DataSet({{ nodes_json|safe }});
+        var edges = new vis.DataSet({{ edges_json|safe }});
+ 
+        var container = document.getElementById('mynetwork');
+        var data = {
+            nodes: nodes,
+            edges: edges
+        };
+        var options = {
+            edges: {
+                hoverWidth: function (edgeWidth) {
+                    return Math.max(edgeWidth * 1.5, edgeWidth + 5);
+                },
+                color: {
+                    highlight: '#ff0000'
+                },
+                font: {
+                    color: '#000000',
+                    size: 14,
+                    face: 'arial'
+                },
+                smooth: {
+                    type: 'dynamic'
+                }
+            },
+            interaction: {
+                hover: true,
+                tooltipDelay: 300
+            },
+            physics: {
+                enabled: true
+            }
+        };
+        var network = new vis.Network(container, data, options);
+ 
+        document.getElementById('select-node').addEventListener('change', function() {
+            var nodeId = this.value;
+            if (nodeId) {
+                // Get connected nodes and edges
+                var connectedNodes = network.getConnectedNodes(nodeId);
+                connectedNodes.push(nodeId); // Include the selected node itself
+ 
+                var connectedEdges = network.getConnectedEdges(nodeId);
+ 
+                // Filter nodes and edges
+                var newNodes = nodes.get({
+                    filter: function(node) {
+                        return connectedNodes.includes(node.id);
+                    }
+                });
+ 
+                var newEdges = edges.get({
+                    filter: function(edge) {
+                        return connectedEdges.includes(edge.id);
+                    }
+                });
+ 
+                // Update network with filtered data
+                network.setData({
+                    nodes: newNodes,
+                    edges: newEdges
+                });
+            }
+        });
+ 
+        document.getElementById('select-group').addEventListener('change', function() {
+            var groupId = this.value;
+            if (groupId) {
+                var selectedNodes = nodes.get({
+                    filter: function(node) {
+                        return node.group == groupId;
+                    }
+                });
+                var selectedNodeIds = selectedNodes.map(function(node) { return node.id; });
+ 
+                // Filter nodes and edges
+                var newNodes = nodes.get({
+                    filter: function(node) {
+                        return selectedNodeIds.includes(node.id);
+                    }
+                });
+ 
+                var newEdges = edges.get({
+                    filter: function(edge) {
+                        return selectedNodeIds.includes(edge.from) && selectedNodeIds.includes(edge.to);
+                    }
+                });
+ 
+                // Update network with filtered data
+                network.setData({
+                    nodes: newNodes,
+                    edges: newEdges
+                });
+            }
+        });
+ 
+        document.getElementById('reset-selection').addEventListener('click', function() {
+            // Reset to original data
+            nodes = new vis.DataSet(originalNodes.get());
+            edges = new vis.DataSet(originalEdges.get());
+            network.setData({
+                nodes: nodes,
+                edges: edges
+            });
+        });
+    </script>
 </body>
 </html>
