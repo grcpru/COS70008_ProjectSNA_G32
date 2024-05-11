@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Network Visualization</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style type="text/css">
         body {
             font-family: Arial, sans-serif;
@@ -38,11 +40,14 @@
         button:hover {
             background-color: #45a049;
         }
+        .export-btn {
+            margin-top: 20px;
+        }
     </style>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
 </head>
 <body>
-    <h1>Network Visualization</h1>
+    <h2>Network Visualization</h2>
     <div>
         <label for="select-node">Select a Node by ID:</label>
         <select id="select-node">
@@ -62,15 +67,16 @@
         
         <button id="reset-selection">Reset Selection</button>
     </div>
+    <button class="export-btn" onclick="exportPDF()">Export as PDF</button>
     <div id="mynetwork"></div>
     <script type="text/javascript">
     // Store the original nodes and edges data
     var originalNodes = new vis.DataSet({{ nodes_json|safe }});
     var originalEdges = new vis.DataSet({{ edges_json|safe }});
-
+ 
     var nodes = new vis.DataSet({{ nodes_json|safe }});
     var edges = new vis.DataSet({{ edges_json|safe }});
-
+ 
     var container = document.getElementById('mynetwork');
     var data = {
         nodes: nodes,
@@ -102,29 +108,29 @@
         }
     };
     var network = new vis.Network(container, data, options);
-
+ 
     document.getElementById('select-node').addEventListener('change', function() {
         var nodeId = this.value;
         if (nodeId) {
             // Get connected nodes and edges
             var connectedNodes = network.getConnectedNodes(nodeId);
             connectedNodes.push(nodeId); // Include the selected node itself
-
+ 
             var connectedEdges = network.getConnectedEdges(nodeId);
-
+ 
             // Filter nodes and edges
             var newNodes = nodes.get({
                 filter: function(node) {
                     return connectedNodes.includes(node.id);
                 }
             });
-
+ 
             var newEdges = edges.get({
                 filter: function(edge) {
                     return connectedEdges.includes(edge.id);
                 }
             });
-
+ 
             // Update network with filtered data
             network.setData({
                 nodes: newNodes,
@@ -132,7 +138,7 @@
             });
         }
     });
-
+ 
     document.getElementById('select-group').addEventListener('change', function() {
         var groupId = this.value;
         if (groupId) {
@@ -142,20 +148,20 @@
                 }
             });
             var selectedNodeIds = selectedNodes.map(function(node) { return node.id; });
-
+ 
             // Filter nodes and edges
             var newNodes = nodes.get({
                 filter: function(node) {
                     return selectedNodeIds.includes(node.id);
                 }
             });
-
+ 
             var newEdges = edges.get({
                 filter: function(edge) {
                     return selectedNodeIds.includes(edge.from) && selectedNodeIds.includes(edge.to);
                 }
             });
-
+ 
             // Update network with filtered data
             network.setData({
                 nodes: newNodes,
@@ -163,7 +169,7 @@
             });
         }
     });
-
+ 
     document.getElementById('reset-selection').addEventListener('click', function() {
         // Reset to original data
         nodes = new vis.DataSet(originalNodes.get());
@@ -173,6 +179,22 @@
             edges: edges
         });
     });
-</script>
+ 
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'pt', 'a4');
+        const container = document.body;
+ 
+        html2canvas(container).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+ 
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('network_visualization_report.pdf');
+        });
+    }
+    </script>
 </body>
 </html>
