@@ -1,58 +1,60 @@
 <!DOCTYPE html>
 {% load static %}
 
-<html lang="en">
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Network Analysis Application</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
-    <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}');">
-        <div class="container">
-            <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
-            <nav>
-                <ul class="navbar">
-                    <li><a href="{% url 'home' %}">Home</a></li>
-                    <li><a href="{% url 'about' %}">About</a></li>
-                    <li><a href="{% url 'contact' %}">Contact</a></li>
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+    <div class="site-content" style="flex: 1;">
+        <!-- Set background image for header with inline CSS for demonstration -->
+        <header class="site-header" style="background-image: url('{% static 'images/network_analysis_bg.png' %}'); background-size: cover; background-position: center;">
+            <div class="container">
+                <h1>Welcome to the Social Network Analysis Application for Trade Data</h1>
+                <nav>
+                    <ul class="navbar">  <!-- Ensure this class matches the one used in the CSS for styling -->
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <main class="container">
+            <h2>About Us</h2>
+            <section class="team-info">
+                <h3>Team Information</h3>
+                <ul>
+                    <li>Molyka Rasmey Chao - 104211738</li>
+                    <li>Ai Ling Ong - 101211609</li>
+                    <li>Palida Parichayawong - 103822045</li>
+                    <li>Preeyanuch Leelapisuth - 103800342</li>
                 </ul>
-            </nav>
-        </div>
-    </header>
-    <main class="container">
-        <h2>About Us</h2>
-        <section class="team-info">
-            <h3>Team Information</h3>
-            <ul>
-                <li>Molyka Rasmey Chao - 104211738</li>
-                <li>Ai Ling Ong - 101211609</li>
-                <li>Palida Parichayawong - 103822045</li>
-                <li>Preeyanuch Leelapisuth - 103800342</li>
-            </ul>
-        </section>
-        <section class="project-description">
-            <h3>Project Description</h3>
-            <p>The goal of this project is to develop a desktop application for social network analysis using statistical
-                models, including models such as exponential random graph models (ERGMs) or auto-logistic actor attribute models
-                (ALAAMs). The application will provide users with a user-friendly and interactive interface to collect and
-                upload network data, perform network descriptive statistics, visualize networks, and apply various statistical
-                models to analyze network structures and related outcomes. The program will generate an interactive report that
-                integrates findings from descriptive statistics and statistical models, presenting results in both
-                numerical/table format and empirical interpretations with practical implications.</p>
-            <ul>
-                <li>Develop a desktop application for social network analysis.</li>
-                <li>Enable data collection, uploading, processing, and validation within the application.</li>
-                <li>Implement key network metrics using descriptive statistics algorithms.</li>
-                <li>Create a network visualization module for exploring network structures.</li>
-                <li>Incorporate ERGMs and ALAAMs for network property analysis.</li>
-                <li>Allow customization and application of statistical models for specific analyses.</li>
-                <li>Produce interactive, user-friendly reports that present analysis results effectively.</li>
-                <li>Offer interpretive insights and practical implications from the analysis.</li>
-            </ul>
-        </section>
-    </main>
+            </section>
+            <section class="project-description">
+                <h3>Project Description</h3>
+                <p>The goal of this project is to develop a desktop application for social network analysis using statistical
+                    models, including models such as exponential random graph models (ERGMs) or auto-logistic actor attribute models
+                    (ALAAMs). The application will provide users with a user-friendly and interactive interface to collect and
+                    upload network data, perform network descriptive statistics, visualize networks, and apply various statistical
+                    models to analyze network structures and related outcomes. The program will generate an interactive report that
+                    integrates findings from descriptive statistics and statistical models, presenting results in both
+                    numerical/table format and empirical interpretations with practical implications.</p>
+                <ul>
+                    <li>Develop a desktop application for social network analysis.</li>
+                    <li>Enable data collection, uploading, processing, and validation within the application.</li>
+                    <li>Implement key network metrics using descriptive statistics algorithms.</li>
+                    <li>Create a network visualization module for exploring network structures.</li>
+                    <li>Incorporate ERGMs and ALAAMs for network property analysis.</li>
+                    <li>Allow customization and application of statistical models for specific analyses.</li>
+                    <li>Produce interactive, user-friendly reports that present analysis results effectively.</li>
+                    <li>Offer interpretive insights and practical implications from the analysis.</li>
+                </ul>
+            </section>
+        </main>
     <footer>
         <p>&copy; 2024 Project SNA Group 32. All rights reserved.</p>
     </footer>

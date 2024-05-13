@@ -1,8 +1,10 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Network Visualization</title>
+    <title>Network Visualisation</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -196,5 +198,13 @@
         });
     }
     </script>
+
+    <div class="action-buttons">
+        <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+        <a href="{% url 'explore_datasets' %}" class="btn btn-primary">Explore Datasets</a>
+        <a href="{% url 'network_statistics' %}" class="btn btn-primary">Descriptive Statistics</a>
+        <a href="{% url 'analyze_data' %}" class="btn btn-primary">Model Analysis</a> 
+    </div>
+
 </body>
 </html>
