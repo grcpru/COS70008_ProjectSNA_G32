@@ -158,69 +158,72 @@ def network_graph(request):
 def network_view(request):
     def generate_network_data(data, source_col='exporter_name', target_col='importer_name', attribute='value', weight_threshold=20):
         G = nx.DiGraph()
- 
+
         if attribute in data.columns:
             data[attribute] = pd.to_numeric(data[attribute], errors='coerce')
- 
+
+        # Check and add edges
         for _, row in data.iterrows():
-            if attribute in data.columns and pd.notnull(row[attribute]):
-                if row[attribute] >= weight_threshold:
-                    G.add_edge(row[source_col], row[target_col], weight=row[attribute], trade_amount=row[attribute])
-            else:
-                G.add_edge(row[source_col], row[target_col])
- 
+            # Add edges only if the attribute value is above threshold or exists
+            if attribute in data.columns and pd.notnull(row[attribute]) and row[attribute] >= weight_threshold:
+                G.add_edge(row[source_col], row[target_col], weight=row[attribute], trade_amount=row[attribute], relationship='normal')
+                # Check for mutual relationship
+                if G.has_edge(row[target_col], row[source_col]):
+                    # Update both edges to 'mutual' if mutual trade is found
+                    G[row[source_col]][row[target_col]]['relationship'] = 'mutual'
+                    G[row[target_col]][row[source_col]]['relationship'] = 'mutual'
+
+        # Community detection
         communities = community_louvain.best_partition(G.to_undirected(), weight='weight' if attribute in data.columns else None)
-        num_communities = len(set(communities.values()))
- 
+        nx.set_node_attributes(G, communities, 'community')
+
         nodes = []
         edges = []
         cmap = plt.get_cmap('viridis')
- 
-        for node in G.nodes:
-            color = mcolors.rgb2hex(cmap(communities[node] / num_communities))
+        num_communities = len(set(communities.values()))
+
+        # Generate node data
+        for node, attrs in G.nodes(data=True):
+            color = mcolors.rgb2hex(cmap(attrs['community'] / num_communities))
             nodes.append({
                 "id": node,
                 "label": node,
-                "title": f"Community: {communities[node]}",
-                "group": communities[node],
+                "title": f"Community: {attrs['community']}",
+                "group": attrs['community'],
                 "color": color
             })
- 
+
+        # Generate edge data
         for src, dst, attr in G.edges(data=True):
-            if attribute in attr:
-                title = f"Trade Amount: {attr['trade_amount']}"
-                edges.append({
-                    "from": src,
-                    "to": dst,
-                    "value": attr.get('weight', 1),
-                    "title": title
-                })
-            else:
-                edges.append({
-                    "from": src,
-                    "to": dst
-                })
- 
+            edges.append({
+                "from": src,
+                "to": dst,
+                "value": attr.get('weight', 1),
+                "title": f"Trade Amount: {attr.get('trade_amount', '')}",
+                "relationship": attr.get('relationship', 'normal')
+            })
+
         grouped_nodes = {}
         for node in nodes:
             group = node['group']
             if group not in grouped_nodes:
                 grouped_nodes[group] = []
             grouped_nodes[group].append(node)
- 
+
         return nodes, edges, grouped_nodes
- 
+
     file_path = os.path.join(settings.MEDIA_ROOT, 'trade_data_rice.csv')
     df = pd.read_csv(file_path)
- 
+
     nodes, edges, grouped_nodes = generate_network_data(df)
- 
+
     return render(request, "visualization_page.html", {
         "nodes_json": json.dumps(nodes),
         "edges_json": json.dumps(edges),
         "nodes": nodes,
         "grouped_nodes": grouped_nodes
     })
+
 
 def calculate_network_statistics(dataframe):
     G = nx.from_pandas_edgelist(dataframe, source='exporter_name', target='importer_name', edge_attr=True, create_using=nx.DiGraph())

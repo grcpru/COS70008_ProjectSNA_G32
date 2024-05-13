@@ -9,44 +9,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style type="text/css">
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        #mynetwork {
-            width: 100%;
-            height: 750px;
-            border: 1px solid lightgray;
-            margin-top: 20px;
-        }
-        label {
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        select, button {
-            margin-right: 20px;
-            padding: 8px 16px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background-color: #4CAF50; /* Green */
-            border: none;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .export-btn {
-            margin-top: 20px;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #mynetwork { width: 100%; height: 750px; border: 1px solid lightgray; margin-top: 20px; }
+        label, select, button { margin-right: 20px; padding: 8px 16px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background-color: #4CAF50; color: white; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        .export-btn { margin-top: 20px; }
     </style>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
 </head>
 <body>
     <h2>Network Visualisation</h2>
@@ -72,139 +42,123 @@
     <button class="export-btn" onclick="exportPDF()">Export as PDF</button>
     <div id="mynetwork"></div>
     <script type="text/javascript">
-    // Store the original nodes and edges data
-    var originalNodes = new vis.DataSet({{ nodes_json|safe }});
-    var originalEdges = new vis.DataSet({{ edges_json|safe }});
- 
-    var nodes = new vis.DataSet({{ nodes_json|safe }});
-    var edges = new vis.DataSet({{ edges_json|safe }});
- 
-    var container = document.getElementById('mynetwork');
+        var nodes = new vis.DataSet({{ nodes_json|safe }});
+        var edges = new vis.DataSet(
+            {{ edges_json|safe }}.map(function(edge) {
+                if (edge.relationship === 'mutual') {
+                    return { ...edge, arrows: 'to, from', color: 'red' };
+                } else {
+                    return { ...edge, arrows: 'to', color: 'blue' };
+                }
+            })
+        );
+
+        var container = document.getElementById('mynetwork');
     var data = {
         nodes: nodes,
         edges: edges
     };
     var options = {
-        edges: {
-            hoverWidth: function (edgeWidth) {
-                return Math.max(edgeWidth * 1.5, edgeWidth + 5);
-            },
-            color: {
-                highlight: '#ff0000'
-            },
-            font: {
-                color: '#000000',
-                size: 14,
-                face: 'arial'
-            },
-            smooth: {
-                type: 'dynamic'
-            }
+        nodes: {
+            shape: 'dot',
+            size: 20,
+            font: { size: 14 }
         },
-        interaction: {
-            hover: true,
-            tooltipDelay: 300
+        edges: {
+            smooth: {
+                type: 'dynamic',
+                forceDirection: 'none',
+                roundness: 0.5
+            },
+            arrows: 'to'
         },
         physics: {
             enabled: true
         }
     };
     var network = new vis.Network(container, data, options);
- 
+
+    // Ensure you attach event listeners after the network has been initialized
     document.getElementById('select-node').addEventListener('change', function() {
-        var nodeId = this.value;
-        if (nodeId) {
-            // Get connected nodes and edges
-            var connectedNodes = network.getConnectedNodes(nodeId);
-            connectedNodes.push(nodeId); // Include the selected node itself
- 
-            var connectedEdges = network.getConnectedEdges(nodeId);
- 
-            // Filter nodes and edges
-            var newNodes = nodes.get({
-                filter: function(node) {
-                    return connectedNodes.includes(node.id);
-                }
-            });
- 
-            var newEdges = edges.get({
-                filter: function(edge) {
-                    return connectedEdges.includes(edge.id);
-                }
-            });
- 
-            // Update network with filtered data
-            network.setData({
-                nodes: newNodes,
-                edges: newEdges
-            });
-        }
+        var selectedId = this.value;
+        console.log("Selected node ID:", selectedId); // Debugging output
+    
+        // Get all nodes that are directly connected to the selected node
+        var connectedNodeIds = new Set([selectedId]); // Start with the selected node
+    
+        // Get all edges that are connected to the selected node
+        var connectedEdges = edges.get({
+            filter: function (edge) {
+                return edge.from === selectedId || edge.to === selectedId;
+            }
+        });
+    
+        // Add all connected nodes to the set
+        connectedEdges.forEach(function(edge) {
+            connectedNodeIds.add(edge.from);
+            connectedNodeIds.add(edge.to);
+        });
+    
+        var updatedNodes = nodes.get(Array.from(connectedNodeIds)); // Convert Set to Array for filtering nodes
+        var updatedEdges = connectedEdges; // Already filtered connected edges
+    
+        console.log("Updated nodes:", updatedNodes); // Debugging output
+        console.log("Updated edges:", updatedEdges); // Debugging output
+    
+        network.setData({
+            nodes: new vis.DataSet(updatedNodes),
+            edges: new vis.DataSet(updatedEdges)
+        });
     });
- 
+    
+
     document.getElementById('select-group').addEventListener('change', function() {
         var groupId = this.value;
-        if (groupId) {
-            var selectedNodes = nodes.get({
-                filter: function(node) {
-                    return node.group == groupId;
-                }
-            });
-            var selectedNodeIds = selectedNodes.map(function(node) { return node.id; });
- 
-            // Filter nodes and edges
-            var newNodes = nodes.get({
-                filter: function(node) {
-                    return selectedNodeIds.includes(node.id);
-                }
-            });
- 
-            var newEdges = edges.get({
-                filter: function(edge) {
-                    return selectedNodeIds.includes(edge.from) && selectedNodeIds.includes(edge.to);
-                }
-            });
- 
-            // Update network with filtered data
-            network.setData({
-                nodes: newNodes,
-                edges: newEdges
-            });
-        }
+        var groupNodes = nodes.get({
+            filter: function (node) {
+                return node.group == groupId;
+            }
+        });
+        var groupEdges = edges.get({
+            filter: function (edge) {
+                var nodeIds = groupNodes.map(node => node.id);
+                return nodeIds.includes(edge.from) || nodeIds.includes(edge.to);
+            }
+        });
+        network.setData({
+            nodes: new vis.DataSet(groupNodes),
+            edges: new vis.DataSet(groupEdges)
+        });
     });
- 
+
     document.getElementById('reset-selection').addEventListener('click', function() {
-        // Reset to original data
-        nodes = new vis.DataSet(originalNodes.get());
-        edges = new vis.DataSet(originalEdges.get());
+        document.getElementById('select-node').value = '';
+        document.getElementById('select-group').value = '';
         network.setData({
             nodes: nodes,
             edges: edges
         });
     });
- 
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'pt', 'a4');
-        const container = document.body;
- 
-        html2canvas(container).then((canvas) => {
-            const imgData = canvas.toDataURL('image/png');
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
- 
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('network_visualization_report.pdf');
-        });
-    }
-    </script>
 
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'pt', 'a4');
+            const container = document.body;
+            html2canvas(container).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('network_visualization_report.pdf');
+            });
+        }
+    </script>
     <div class="action-buttons">
         <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
         <a href="{% url 'explore_datasets' %}" class="btn btn-primary">Explore Datasets</a>
         <a href="{% url 'network_statistics' %}" class="btn btn-primary">Descriptive Statistics</a>
         <a href="{% url 'analyze_data' %}" class="btn btn-primary">Model Analysis</a> 
     </div>
-
 </body>
 </html>
