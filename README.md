@@ -26,7 +26,5 @@ The SNA Desktop Application leverages statistical models such as Exponential Ran
 **Backend Framework**
 The backend of the application is built using the Django framework, providing a robust and scalable foundation for managing data and serving the application's functionality.
 
-**Note**
-Please note that the code for the Social Network Analyzer (SNA) Desktop Application is still under development and not yet finalized.
 
-Project Group32
+**Project Group32**
